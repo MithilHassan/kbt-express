@@ -51,7 +51,7 @@ export const TrackShipmentBar = () => (
             placeholder="Enter your tracking no."
             className="bg-white px-4 py-2 rounded-l-md rounded-r-none focus:outline-none text-sm w-full sm:w-64"
           />
-          <button className="bg-orange-400 text-white px-5 py-2 rounded-r-md rounded-l-none ww-auto text-sm">
+          <button className="bg-orange-400 text-white px-5 py-2 rounded-r-md rounded-l-none ww-auto text-sm cursor-pointer">
             Track
           </button>
         </div>

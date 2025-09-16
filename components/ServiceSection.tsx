@@ -12,9 +12,8 @@ type ServiceCardProps = {
 const ServiceCard = ({ src, alt, title, description, animation = "fade-up" }: ServiceCardProps) => (
   <article
   data-aos={animation}
-  className="shadow-lg rounded-lg p-0"
 >
-  <div className="transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl rounded-lg overflow-hidden">
+  <div className="transition duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl rounded-lg overflow-hidden h-full">
     <div className="bg-white p-6 text-left">
       <Image
         src={src}

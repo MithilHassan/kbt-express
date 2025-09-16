@@ -59,7 +59,7 @@ export default function About() {
         SERVICES <span className="text-[#0253A3]">OVERVIEW</span>
       </h2>
 
-      <div className="grid lg:grid-cols-3 md:grid-cols-2 gap-10">
+      <div className="grid xl:grid-cols-4 lg:grid-cols-3 md:grid-cols-2 gap-10">
         {services.map((service, index) => (
           <div
             key={index}

@@ -131,13 +131,13 @@ export async function POST(request: NextRequest) {
       .eq("id", 1)
 
     if (updateError) {
-      console.error("[v0] Counter update error:", updateError)
+      console.error("[Counter update error:", updateError)
       return NextResponse.json({ error: "Failed to update booking counter" }, { status: 500 })
     }
 
     // Generate the booking number with KBT prefix and zero padding
-    const bookingNumber = `KBT${nextValue.toString().padStart(6, "0")}`
-    console.log("[v0] Generated booking number:", bookingNumber)
+    const bookingNumber = `101${nextValue.toString().padStart(6, "0")}`
+    console.log("[Generated booking number:", bookingNumber)
 
     const { data: booking, error } = await supabase
       .from("bookings")
