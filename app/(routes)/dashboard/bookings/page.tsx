@@ -58,6 +58,18 @@ interface Booking {
   width_cm?: number
   height_cm?: number
   dimensional_weight?: number
+  packages?: Array<{
+    id: string
+    billing_weight_kg: number
+    billing_weight_gm: number
+    gross_weight: number
+    length_cm: number
+    width_cm: number
+    height_cm: number
+    pieces: number
+    dimensional_weight: number
+    description?: string
+  }>
 }
 
 export default function BookingsPage() {
@@ -68,6 +80,8 @@ export default function BookingsPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null)
   const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
+  const [selectedBookings, setSelectedBookings] = useState<string[]>([])
+  const [bulkUpdating, setBulkUpdating] = useState(false)
 
   useEffect(() => {
     fetchBookings()
@@ -150,6 +164,70 @@ export default function BookingsPage() {
     }
   }
 
+  const handleBulkStatusUpdate = async (newStatus: string) => {
+    if (selectedBookings.length === 0) {
+      alert("Please select bookings to update")
+      return
+    }
+
+    setBulkUpdating(true)
+    try {
+      console.log("[v0] Bulk updating bookings:", selectedBookings, "to status:", newStatus)
+
+      const response = await fetch("/api/bookings/bulk-update", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          bookingIds: selectedBookings,
+          status: newStatus,
+        }),
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        console.log("[v0] Bulk update successful:", result)
+
+        // Update local state
+        setBookings((prevBookings) =>
+          prevBookings.map((booking) =>
+            selectedBookings.includes(booking.id) ? { ...booking, status: newStatus } : booking,
+          ),
+        )
+
+        // Clear selection
+        setSelectedBookings([])
+        alert(result.message)
+      } else {
+        const errorData = await response.json()
+        console.error("[v0] Bulk update failed:", errorData)
+        alert(`Failed to update bookings: ${errorData.error}`)
+      }
+    } catch (error) {
+      console.error("[v0] Bulk update error:", error)
+      alert("Network error: Failed to update bookings. Please try again.")
+    } finally {
+      setBulkUpdating(false)
+    }
+  }
+
+  const handleBookingSelect = (bookingId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedBookings((prev) => [...prev, bookingId])
+    } else {
+      setSelectedBookings((prev) => prev.filter((id) => id !== bookingId))
+    }
+  }
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedBookings(filteredBookings.map((booking) => booking.id))
+    } else {
+      setSelectedBookings([])
+    }
+  }
+
   const getStatusSelect = (booking: Booking) => {
     const statusOptions = [
       { value: "pending", label: "Pending", variant: "secondary" as const },
@@ -206,6 +284,18 @@ export default function BookingsPage() {
   }
 
   const handleDownloadPDF = (booking: Booking) => {
+    const packages = booking.packages?.map((pkg) => ({
+      billingWeightKg: pkg.billing_weight_kg,
+      billingWeightGm: pkg.billing_weight_gm,
+      grossWeight: pkg.gross_weight,
+      lengthCm: pkg.length_cm,
+      widthCm: pkg.width_cm,
+      heightCm: pkg.height_cm,
+      pieces: pkg.pieces,
+      dimensionalWeight: pkg.dimensional_weight,
+      description: pkg.description || "",
+    }))
+
     const pdfData: BookingData = {
       bookingNumber: booking.booking_number,
       createdAt: booking.created_at,
@@ -242,6 +332,7 @@ export default function BookingsPage() {
       widthCm: booking.width_cm?.toString() || "",
       heightCm: booking.height_cm?.toString() || "",
       dimensionalWeight: booking.dimensional_weight,
+      packages: packages,
     }
 
     downloadBookingPDF(pdfData)
@@ -422,6 +513,59 @@ export default function BookingsPage() {
         </CardContent>
       </Card>
 
+      {/* Bulk Actions Section */}
+      {selectedBookings.length > 0 && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <span className="text-sm font-medium">
+                  {selectedBookings.length} booking{selectedBookings.length > 1 ? "s" : ""} selected
+                </span>
+                <Button variant="outline" size="sm" onClick={() => setSelectedBookings([])}>
+                  Clear Selection
+                </Button>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm">Update status to:</span>
+                <Select onValueChange={handleBulkStatusUpdate} disabled={bulkUpdating}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder={bulkUpdating ? "Updating..." : "Select status"} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">
+                      <Badge variant="secondary" className="text-xs">
+                        Pending
+                      </Badge>
+                    </SelectItem>
+                    <SelectItem value="confirmed">
+                      <Badge variant="default" className="text-xs">
+                        Confirmed
+                      </Badge>
+                    </SelectItem>
+                    <SelectItem value="in_transit">
+                      <Badge variant="outline" className="text-xs">
+                        In Transit
+                      </Badge>
+                    </SelectItem>
+                    <SelectItem value="delivered">
+                      <Badge variant="default" className="text-xs">
+                        Delivered
+                      </Badge>
+                    </SelectItem>
+                    <SelectItem value="cancelled">
+                      <Badge variant="destructive" className="text-xs">
+                        Cancelled
+                      </Badge>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Bookings Table */}
       <Card className="border-border">
         <CardHeader>
@@ -442,6 +586,15 @@ export default function BookingsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    {/* Select All Checkbox */}
+                    <TableHead className="w-12">
+                      <input
+                        type="checkbox"
+                        checked={selectedBookings.length === filteredBookings.length && filteredBookings.length > 0}
+                        onChange={(e) => handleSelectAll(e.target.checked)}
+                        className="rounded border-gray-300"
+                      />
+                    </TableHead>
                     <TableHead>Booking #</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead>Shipper</TableHead>
@@ -455,6 +608,15 @@ export default function BookingsPage() {
                 <TableBody>
                   {filteredBookings.map((booking) => (
                     <TableRow key={booking.id}>
+                      {/* Individual Booking Checkbox */}
+                      <TableCell>
+                        <input
+                          type="checkbox"
+                          checked={selectedBookings.includes(booking.id)}
+                          onChange={(e) => handleBookingSelect(booking.id, e.target.checked)}
+                          className="rounded border-gray-300"
+                        />
+                      </TableCell>
                       <TableCell className="font-medium">{booking.booking_number}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1 text-sm">
@@ -595,6 +757,44 @@ export default function BookingsPage() {
                                       )}
                                     </div>
                                   </div>
+
+                                  {/* Packages Information */}
+                                  {selectedBooking.packages && (
+                                    <div className="md:col-span-2 space-y-4">
+                                      <h3 className="font-semibold text-lg">Packages Information</h3>
+                                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                                        {selectedBooking.packages.map((pkg, index) => (
+                                          <div key={pkg.id}>
+                                            <strong>Package {index + 1}:</strong>
+                                            <div>
+                                              <strong>Billing Weight (kg):</strong> {pkg.billing_weight_kg}
+                                            </div>
+                                            <div>
+                                              <strong>Billing Weight (gm):</strong> {pkg.billing_weight_gm}
+                                            </div>
+                                            <div>
+                                              <strong>Gross Weight:</strong> {pkg.gross_weight}
+                                            </div>
+                                            <div>
+                                              <strong>Dimensions (L×W×H cm):</strong>{" "}
+                                              {`${pkg.length_cm}×${pkg.width_cm}×${pkg.height_cm}`}
+                                            </div>
+                                            <div>
+                                              <strong>Pieces:</strong> {pkg.pieces}
+                                            </div>
+                                            <div>
+                                              <strong>Dimensional Weight:</strong> {pkg.dimensional_weight}
+                                            </div>
+                                            {pkg.description && (
+                                              <div>
+                                                <strong>Description:</strong> {pkg.description}
+                                              </div>
+                                            )}
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
                               )}
                             </DialogContent>

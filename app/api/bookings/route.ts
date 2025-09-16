@@ -8,7 +8,21 @@ export async function GET() {
 
     const { data: bookings, error } = await supabase
       .from("bookings")
-      .select("*")
+      .select(`
+        *,
+        packages (
+          id,
+          billing_weight_kg,
+          billing_weight_gm,
+          gross_weight,
+          length_cm,
+          width_cm,
+          height_cm,
+          pieces,
+          dimensional_weight,
+          description
+        )
+      `)
       .order("created_at", { ascending: false })
 
     if (error) {
@@ -29,7 +43,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json()
+    console.log("[v0] Submitting form data:", formData)
     const supabase = await createClient()
+
+    const { packages, ...bookingData } = formData
 
     // Validate required fields
     const requiredFields = [
@@ -58,73 +75,114 @@ export async function POST(request: NextRequest) {
     ]
 
     for (const field of requiredFields) {
-      if (!formData[field]) {
+      if (!bookingData[field]) {
         return NextResponse.json({ error: `Missing required field: ${field}` }, { status: 400 })
       }
+    }
+
+    if (!packages || !Array.isArray(packages) || packages.length === 0) {
+      return NextResponse.json({ error: "At least one package is required" }, { status: 400 })
     }
 
     // Validate country codes
     const validCountryCodes = countries.map((c) => c.code)
     if (
-      !validCountryCodes.includes(formData.shipperCountry) ||
-      !validCountryCodes.includes(formData.consigneeCountry)
+      !validCountryCodes.includes(bookingData.shipperCountry) ||
+      !validCountryCodes.includes(bookingData.consigneeCountry)
     ) {
       return NextResponse.json({ error: "Invalid country code" }, { status: 400 })
     }
 
-    // Calculate dimensional weight if dimensions are provided
-    let dimensionalWeight = null
-    if (formData.lengthCm && formData.widthCm && formData.heightCm) {
-      const length = Number.parseFloat(formData.lengthCm)
-      const width = Number.parseFloat(formData.widthCm)
-      const height = Number.parseFloat(formData.heightCm)
-      dimensionalWeight = (length * width * height) / 5000
+    let totalBillingWeightKg = 0
+    let totalBillingWeightGm = 0
+    let totalGrossWeight = 0
+    let totalDimensionalWeight = 0
+    let totalPieces = 0
+
+    packages.forEach((pkg: any) => {
+      totalBillingWeightKg += Number.parseFloat(pkg.billingWeightKg) || 0
+      totalBillingWeightGm += Number.parseFloat(pkg.billingWeightGm) || 0
+      totalGrossWeight += Number.parseFloat(pkg.grossWeight) || 0
+      totalDimensionalWeight += pkg.dimensionalWeight || 0
+      totalPieces += Number.parseInt(pkg.pieces) || 0
+    })
+
+    // First, get and increment the counter
+    const { data: counterData, error: counterError } = await supabase
+      .from("booking_sequence")
+      .select("current_number")
+      .eq("id", 1)
+      .single()
+
+    if (counterError) {
+      console.error("[v0] Counter fetch error:", counterError)
+      return NextResponse.json({ error: "Failed to generate booking number" }, { status: 500 })
     }
 
-    // Insert booking into database
+    const nextValue = (counterData?.current_number || 0) + 1
+
+    // Update the counter
+    const { error: updateError } = await supabase
+      .from("booking_sequence")
+      .update({
+        current_number: nextValue,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", 1)
+
+    if (updateError) {
+      console.error("[v0] Counter update error:", updateError)
+      return NextResponse.json({ error: "Failed to update booking counter" }, { status: 500 })
+    }
+
+    // Generate the booking number with KBT prefix and zero padding
+    const bookingNumber = `KBT${nextValue.toString().padStart(6, "0")}`
+    console.log("[v0] Generated booking number:", bookingNumber)
+
     const { data: booking, error } = await supabase
       .from("bookings")
       .insert({
+        booking_number: bookingNumber,
+
         // Shipper Information
-        shipper_company_name: formData.shipperCompanyName,
-        shipper_contact_person: formData.shipperContactPerson,
-        shipper_address_line: formData.shipperAddressLine,
-        shipper_city: formData.shipperCity,
-        shipper_zip: formData.shipperZip,
-        shipper_state: formData.shipperState,
-        shipper_country: formData.shipperCountry,
-        shipper_phone: formData.shipperPhone,
-        shipper_email: formData.shipperEmail,
+        shipper_company_name: bookingData.shipperCompanyName,
+        shipper_contact_person: bookingData.shipperContactPerson,
+        shipper_address_line: bookingData.shipperAddressLine,
+        shipper_city: bookingData.shipperCity,
+        shipper_zip: bookingData.shipperZip,
+        shipper_state: bookingData.shipperState,
+        shipper_country: bookingData.shipperCountry,
+        shipper_phone: bookingData.shipperPhone,
+        shipper_email: bookingData.shipperEmail,
 
         // Consignee Information
-        consignee_company_name: formData.consigneeCompanyName,
-        consignee_contact_person: formData.consigneeContactPerson,
-        consignee_address_line: formData.consigneeAddressLine,
-        consignee_city: formData.consigneeCity,
-        consignee_zip: formData.consigneeZip,
-        consignee_state: formData.consigneeState,
-        consignee_country: formData.consigneeCountry,
-        consignee_phone: formData.consigneePhone,
-        consignee_email: formData.consigneeEmail,
+        consignee_company_name: bookingData.consigneeCompanyName,
+        consignee_contact_person: bookingData.consigneeContactPerson,
+        consignee_address_line: bookingData.consigneeAddressLine,
+        consignee_city: bookingData.consigneeCity,
+        consignee_zip: bookingData.consigneeZip,
+        consignee_state: bookingData.consigneeState,
+        consignee_country: bookingData.consigneeCountry,
+        consignee_phone: bookingData.consigneePhone,
+        consignee_email: bookingData.consigneeEmail,
 
         // Shipment Information
-        payment_mode: formData.paymentMode,
-        amount: formData.amount ? Number.parseFloat(formData.amount) : null,
-        reference_number: formData.referenceNumber || null,
-        pieces: Number.parseInt(formData.pieces),
-        product_value: formData.productValue ? Number.parseFloat(formData.productValue) : null,
-        billing_weight_kg: formData.billingWeightKg ? Number.parseFloat(formData.billingWeightKg) : null,
-        billing_weight_gm: formData.billingWeightGm ? Number.parseFloat(formData.billingWeightGm) : null,
-        gross_weight: formData.grossWeight ? Number.parseFloat(formData.grossWeight) : null,
-        item_type: formData.itemType,
-        remarks: formData.remarks || null,
-        item_description: formData.itemDescription,
+        payment_mode: bookingData.paymentMode,
+        amount: bookingData.amount ? Number.parseFloat(bookingData.amount) : null,
+        reference_number: bookingData.referenceNumber || null,
+        pieces: Number.parseInt(bookingData.pieces),
+        product_value: bookingData.productValue ? Number.parseFloat(bookingData.productValue) : null,
+        billing_weight_kg: totalBillingWeightKg,
+        billing_weight_gm: totalBillingWeightGm,
+        gross_weight: totalGrossWeight,
+        item_type: bookingData.itemType,
+        remarks: bookingData.remarks || null,
+        item_description: bookingData.itemDescription,
 
-        // Dimensions
-        length_cm: formData.lengthCm ? Number.parseFloat(formData.lengthCm) : null,
-        width_cm: formData.widthCm ? Number.parseFloat(formData.widthCm) : null,
-        height_cm: formData.heightCm ? Number.parseFloat(formData.heightCm) : null,
-        dimensional_weight: dimensionalWeight,
+        length_cm: packages[0]?.lengthCm ? Number.parseFloat(packages[0].lengthCm) : null,
+        width_cm: packages[0]?.widthCm ? Number.parseFloat(packages[0].widthCm) : null,
+        height_cm: packages[0]?.heightCm ? Number.parseFloat(packages[0].heightCm) : null,
+        dimensional_weight: totalDimensionalWeight,
       })
       .select()
       .single()
@@ -134,6 +192,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to create booking" }, { status: 500 })
     }
 
+    const packageInserts = packages.map((pkg: any) => ({
+      booking_id: booking.id,
+      billing_weight_kg: Number.parseFloat(pkg.billingWeightKg) || 0,
+      billing_weight_gm: Number.parseFloat(pkg.billingWeightGm) || 0,
+      gross_weight: Number.parseFloat(pkg.grossWeight) || 0,
+      length_cm: Number.parseFloat(pkg.lengthCm) || 0,
+      width_cm: Number.parseFloat(pkg.widthCm) || 0,
+      height_cm: Number.parseFloat(pkg.heightCm) || 0,
+      pieces: Number.parseInt(pkg.pieces) || 1,
+      dimensional_weight: pkg.dimensionalWeight || 0,
+      description: pkg.description || null,
+    }))
+
+    const { error: packagesError } = await supabase.from("packages").insert(packageInserts)
+
+    if (packagesError) {
+      console.error("[v0] Packages insert error:", packagesError)
+      // Don't fail the entire booking if packages insert fails
+      console.warn("[v0] Continuing without package details")
+    }
+
+    console.log("[v0] Booking created successfully:", booking)
     return NextResponse.json({
       success: true,
       booking: booking,

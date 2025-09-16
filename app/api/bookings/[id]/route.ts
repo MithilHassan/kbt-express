@@ -13,9 +13,22 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       return NextResponse.json({ error: "Booking not found" }, { status: 404 })
     }
 
+    const { data: packages, error: packagesError } = await supabase
+      .from("packages")
+      .select("*")
+      .eq("booking_id", params.id)
+      .order("created_at", { ascending: true })
+
+    if (packagesError) {
+      console.error("[v0] Error fetching packages:", packagesError)
+    }
+
     return NextResponse.json({
       success: true,
-      booking: booking,
+      booking: {
+        ...booking,
+        packages: packages || [],
+      },
     })
   } catch (error) {
     console.error("[v0] API error:", error)
@@ -183,6 +196,36 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         },
         { status: 500 },
       )
+    }
+
+    if (formData.packages && Array.isArray(formData.packages)) {
+      // Delete existing packages
+      const { error: deleteError } = await adminSupabase.from("packages").delete().eq("booking_id", params.id)
+
+      if (deleteError) {
+        console.error("[v0] Error deleting existing packages:", deleteError)
+      }
+
+      // Insert new packages
+      const packagesData = formData.packages.map((pkg: any) => ({
+        booking_id: params.id,
+        length_cm: Number.parseFloat(pkg.lengthCm) || 0,
+        width_cm: Number.parseFloat(pkg.widthCm) || 0,
+        height_cm: Number.parseFloat(pkg.heightCm) || 0,
+        pieces: Number.parseInt(pkg.pieces) || 1,
+        description: pkg.description || "",
+        dimensional_weight: pkg.dimensionalWeight || 0,
+        billing_weight_kg: Number.parseFloat(formData.billingWeightKg) || 0,
+        billing_weight_gm: Number.parseFloat(formData.billingWeightGm) || 0,
+        gross_weight: Number.parseFloat(formData.grossWeight) || 0,
+      }))
+
+      const { error: insertError } = await adminSupabase.from("packages").insert(packagesData)
+
+      if (insertError) {
+        console.error("[v0] Error inserting packages:", insertError)
+        return NextResponse.json({ error: "Failed to update packages" }, { status: 500 })
+      }
     }
 
     const updatedBooking = updateResult[0]

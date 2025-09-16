@@ -1,25 +1,46 @@
-import Image from "next/image"
-import gallery from "../../../public/services.png"
-
-
+import Image from "next/image";
+import gallery from "../../../public/services.png";
 
 const About = () => (
-  <section className="min-h-screen">
-    <div className="container mx-auto py-14">
-      <p className="text-orange-400 font-medium">WE STARTED WITH A SIMPLE IDEA</p>
-      <h2 className="text-3xl font-bold mb-5">COMPANY <span className="text-[#0253A3]">OVERVIEW</span></h2>
-      <div className="grid grid-cols-2 gap-10">
-        <p className="text-xl">
-        KBT Express started its journey having more than 20 years of experienced employees, expertise and infrastructure. <br /><br />
-        KBT Express is an International express delivery partner in Bangladesh that offers door-to-door delivery. Our aim and vision are to provide the best delivery services to all of our clients through our principles / strate-gic partners all over the world. We have more than 55 full-time employees and cover delivery business network by
-        Domestic courier and its own fleet of operation 13 vehicles, 3 cars, 12 motorbikes, 4 branch offices in 4 division in Bangladesh. <br /><br />
-        On a monthly basis, KBT Express has the capacity to handle more than 100 tons in volume and 25000 thousand in consignments of export and import. We believe in innovation, cost-effectiveness, reliability, and providing quality service at all times.  <br /><br />
-        KBT Express is working with a vision to establish its name as a first-class courier service company in Bangladesh with the help of our strong well versed operational
-        team. We offer quick, efficient, and reliable courier solutions for fast and efficient
-        delivery on time.
-        </p>
-        <Image src={gallery} alt="KBT Express" className="w-full h-full object-cover" />
-      </div>  
+  <section className="min-h-screen bg-white">
+    <div className="container mx-auto py-14 px-4">
+      <p className="text-orange-400 font-medium uppercase">We started with a simple idea</p>
+      <h2 className="text-3xl font-bold mb-8">
+        COMPANY <span className="text-[#0253A3]">OVERVIEW</span>
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+        {/* Text Content */}
+        <div className="space-y-6 text-lg text-justify leading-relaxed">
+          <p>
+            KBT Express started its journey having more than 20 years of experienced employees, expertise, and infrastructure.
+          </p>
+          <p>
+            KBT Express is an international express delivery partner in Bangladesh offering door-to-door services. Our aim is to provide the best delivery services to all our clients through strategic global partners.
+          </p>
+          <p>
+            We have over 55 full-time employees and a delivery network supported by domestic couriers, 13 operational vehicles, 3 cars, 12 motorbikes, and 4 branch offices across major divisions in Bangladesh.
+          </p>
+          <p>
+            Every month, KBT Express handles over 100 tons of shipments and 25,000 consignments (export and import).
+            We believe in innovation, cost-effectiveness, reliability, and consistent quality service.
+          </p>
+          <p>
+            Our vision is to establish KBT Express as a first-class courier service company in Bangladesh, backed by a strong operational team delivering fast, efficient, and reliable services.
+          </p>
+        </div>
+
+        {/* Image */}
+        <div className="w-full h-full">
+          <Image
+            src={gallery}
+            alt="KBT Express"
+            className="w-full h-full object-cover rounded-lg shadow-md"
+            placeholder="blur"
+            priority
+          />
+        </div>
+      </div>
     </div>
   </section>
 );

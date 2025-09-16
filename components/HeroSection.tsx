@@ -1,50 +1,73 @@
 import Image from "next/image";
+
+export const HeroBackground = () => (
+  <div className="absolute inset-0">
+    <Image
+      src="/hero-bg.jpg"
+      alt="Background"
+      fill
+      className="object-cover w-full h-full opacity-80"
+    />
+  </div>
+);
+
+
 import Link from "next/link";
 
-export const HeroSection = () => (
- <section >
-    <div className="relative bg-gray-100">
-        <div className="absolute inset-0">
-          <Image
-            src="/hero-bg.jpg"
-            alt="Background"
-            layout="fill"
-            objectFit="cover"
-            className="opacity-80"
-          />
-        </div>
-        <div className="relative z-10 container mx-auto py-40 px-6">
-          <h1 className="text-4xl md:text-5xl font-bold text-[#0253A3]">
-            Fast, Reliable, Global Courier & <br /> <span className="">Logistics Partner</span> 
-          </h1>
-          <p className="mt-4 text-lg text-gray-700">
-            Finding your next generation courier partner?
-          </p>
-          <button className="mt-6 bg-orange-400 text-white px-6 py-3 rounded-md cursor-pointer">
-            <Link href="/booking">Book Now</Link>
-          </button>
-          {/* Track Shipment */}
-          
-        </div>
-    </div>
-    <div className="bg-[#0253A3] py-3 flex">
-            <div className="container mx-auto flex justify-between items-center">
-              <div className="font-bold text-white">
-                <p>Quick Connnect</p>
-                <span>+88 01842-007653</span>
-              </div>
-              <div>
-                <p className="text-white">Track your shipment</p>
-                <input
-                type="text"
-                placeholder="Enter your tracking no."
-                className="bg-white flex-1 px-3 py-1 border-none rounded-l-md focus:outline-none"
-              />
-              <button className="bg-orange-400 text-white px-5 py-1 rounded-r-md cursor-pointer">
-                Track
-              </button>
-              </div>
-            </div>
+export const HeroContent = () => (
+  <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-40 text-left animate-fade-in">
+    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#0253A3] leading-snug">
+      Fast, Reliable, Global Courier & <br />
+      <span>Logistics Partner</span>
+    </h1>
+    <p className="mt-4 text-base sm:text-lg text-gray-700">
+      Finding your next generation courier partner?
+    </p>
+
+    <Link
+      href="/booking"
+      className="mt-6 inline-block bg-orange-400 text-white px-6 py-3 rounded-md cursor-pointer text-sm sm:text-base"
+    >
+      Book Now
+    </Link>
+  </div>
+);
+
+export const TrackShipmentBar = () => (
+  <div className="bg-[#0253A3] py-6">
+    <div className="container mx-auto flex flex-row justify-between items-center px-4 gap-6 sm:gap-0">
+      <div className="text-center sm:text-left hidden sm:block">
+        <p className="text-white font-semibold text-lg">Quick Connect</p>
+        <span className="text-white text-sm block sm:inline-block">
+          +88 01842-007653
+        </span>
       </div>
-    </section>
+
+      <div className="w-full sm:w-auto text-left">
+        <p className="text-white font-semibold text-lg mb-2">Track your shipment</p>
+        <div className="flex flex-row items-center">
+          <input
+            type="text"
+            placeholder="Enter your tracking no."
+            className="bg-white px-4 py-2 rounded-l-md rounded-r-none focus:outline-none text-sm w-full sm:w-64"
+          />
+          <button className="bg-orange-400 text-white px-5 py-2 rounded-r-md rounded-l-none ww-auto text-sm">
+            Track
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+
+
+export const HeroSection = () => (
+  <section>
+    <div className="relative bg-gray-100">
+      <HeroBackground />
+      <HeroContent />
+    </div>
+    <TrackShipmentBar />
+  </section>
 );

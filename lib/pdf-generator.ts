@@ -1,4 +1,17 @@
 import jsPDF from "jspdf"
+import JsBarcode from "jsbarcode"
+
+export interface PackageInfo {
+  billingWeightKg: number
+  billingWeightGm: number
+  grossWeight: number
+  lengthCm: number
+  widthCm: number
+  heightCm: number
+  pieces: number
+  dimensionalWeight: number
+  description: string
+}
 
 export interface BookingData {
   bookingNumber: string
@@ -39,11 +52,26 @@ export interface BookingData {
   remarks?: string
   itemDescription: string
 
-  // Dimensions
+  // Dimensions (legacy - for backward compatibility)
   lengthCm?: string
   widthCm?: string
   heightCm?: string
   dimensionalWeight?: number
+
+  packages?: PackageInfo[]
+}
+
+function generateBarcodeDataURL(text: string): string {
+  const canvas = document.createElement("canvas")
+  JsBarcode(canvas, text, {
+    format: "CODE128",
+    width: 2,
+    height: 40,
+    displayValue: true,
+    fontSize: 12,
+    margin: 10,
+  })
+  return canvas.toDataURL()
 }
 
 export function generateBookingPDF(bookingData: BookingData): jsPDF {
@@ -67,10 +95,16 @@ export function generateBookingPDF(bookingData: BookingData): jsPDF {
   doc.setFont("helvetica", "normal")
   doc.text("GLOBAL LOGISTICS SOLUTIONS", 20, yPosition + 5)
 
-  // Barcode area (simulated with text)
-  doc.setFontSize(10)
-  doc.text("||||||||||||||||||||||||||||||||", 150, yPosition)
-  doc.text(`EX${bookingData.bookingNumber}`, 150, yPosition + 8)
+  try {
+    const barcodeText = `EX${bookingData.bookingNumber}`
+    const barcodeDataURL = generateBarcodeDataURL(barcodeText)
+    doc.addImage(barcodeDataURL, "PNG", 140, yPosition - 5, 50, 15)
+  } catch (error) {
+    // Fallback to text-based barcode if generation fails
+    doc.setFontSize(10)
+    doc.text("||||||||||||||||||||||||||||||||", 150, yPosition)
+    doc.text(`EX${bookingData.bookingNumber}`, 150, yPosition + 8)
+  }
 
   yPosition += 20
 
@@ -145,14 +179,37 @@ export function generateBookingPDF(bookingData: BookingData): jsPDF {
   const consignmentY = yPosition
   doc.rect(centerX, consignmentY, 50, 25)
 
-  // Table rows
+  let totalBillingKg = 0
+  let totalBillingGm = 0
+  let totalGrossWeight = 0
+  let totalDimensionalWeight = 0
+  let totalPieces = 0
+
+  if (bookingData.packages && bookingData.packages.length > 0) {
+    bookingData.packages.forEach((pkg) => {
+      totalBillingKg += pkg.billingWeightKg || 0
+      totalBillingGm += pkg.billingWeightGm || 0
+      totalGrossWeight += pkg.grossWeight || 0
+      totalDimensionalWeight += pkg.dimensionalWeight || 0
+      totalPieces += pkg.pieces || 0
+    })
+  } else {
+    // Fallback to legacy fields
+    totalBillingKg = Number.parseFloat(bookingData.billingWeightKg || "0")
+    totalBillingGm = Number.parseFloat(bookingData.billingWeightGm || "0")
+    totalGrossWeight = Number.parseFloat(bookingData.grossWeight || "0")
+    totalDimensionalWeight = bookingData.dimensionalWeight || 0
+    totalPieces = Number.parseInt(bookingData.pieces || "0")
+  }
+
+  // Table rows with calculated totals
   doc.text("NUMBER OF PACKAGE", centerX + 2, consignmentY + 4)
-  doc.text(bookingData.pieces, centerX + 35, consignmentY + 4)
+  doc.text(totalPieces.toString(), centerX + 35, consignmentY + 4)
   doc.text("A.WEIGHT(KG)", centerX + 40, consignmentY + 4)
-  doc.text(bookingData.billingWeightKg || "0", centerX + 45, consignmentY + 8)
+  doc.text(totalBillingKg.toFixed(3), centerX + 45, consignmentY + 8)
 
   doc.text("VOL WEIGHT (KG)", centerX + 2, consignmentY + 8)
-  doc.text(bookingData.dimensionalWeight?.toFixed(2) || "0.00", centerX + 35, consignmentY + 8)
+  doc.text(totalDimensionalWeight.toFixed(2), centerX + 35, consignmentY + 8)
 
   doc.text("VALUE FOR CUSTOMS (USD)", centerX + 2, consignmentY + 12)
   doc.text(bookingData.productValue || "0.00", centerX + 35, consignmentY + 12)
@@ -290,45 +347,51 @@ export function generateBookingPDF(bookingData: BookingData): jsPDF {
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(8)
   doc.setFont("helvetica", "bold")
-  doc.text("DIMENSION IN CM(VOLUME RATIO 5000)", centerX + 2, yPosition + 4)
+  doc.text("PACKAGES & DIMENSIONS (CM)", centerX + 2, yPosition + 4)
 
   doc.setTextColor(...black)
   doc.setFontSize(7)
   doc.setFont("helvetica", "normal")
   doc.rect(centerX, yPosition + 6, 50, 29)
 
-  // Dimension table headers
-  doc.text("L", centerX + 5, yPosition + 12)
-  doc.text("W", centerX + 15, yPosition + 12)
-  doc.text("H", centerX + 25, yPosition + 12)
-  doc.text("Pcs", centerX + 35, yPosition + 12)
-  doc.text("L", centerX + 45, yPosition + 12)
+  if (bookingData.packages && bookingData.packages.length > 0) {
+    // Show multiple packages
+    let packageY = yPosition + 12
+    doc.text("Pkg", centerX + 2, packageY)
+    doc.text("L", centerX + 10, packageY)
+    doc.text("W", centerX + 18, packageY)
+    doc.text("H", centerX + 26, packageY)
+    doc.text("Pcs", centerX + 34, packageY)
+    doc.text("Vol.Wt", centerX + 42, packageY)
 
-  // Dimension values
-  doc.text(bookingData.lengthCm || "0", centerX + 5, yPosition + 18)
-  doc.text(bookingData.widthCm || "0", centerX + 15, yPosition + 18)
-  doc.text(bookingData.heightCm || "0", centerX + 25, yPosition + 18)
-  doc.text(bookingData.pieces, centerX + 35, yPosition + 18)
+    bookingData.packages.slice(0, 3).forEach((pkg, index) => {
+      packageY += 4
+      doc.text(`${index + 1}`, centerX + 2, packageY)
+      doc.text(pkg.lengthCm?.toString() || "0", centerX + 10, packageY)
+      doc.text(pkg.widthCm?.toString() || "0", centerX + 18, packageY)
+      doc.text(pkg.heightCm?.toString() || "0", centerX + 26, packageY)
+      doc.text(pkg.pieces?.toString() || "0", centerX + 34, packageY)
+      doc.text(pkg.dimensionalWeight?.toFixed(1) || "0", centerX + 42, packageY)
+    })
 
-  doc.text(`VOLUMETRIC WEIGHT: ${bookingData.dimensionalWeight?.toFixed(2) || "0.00"}`, centerX + 2, yPosition + 28)
+    if (bookingData.packages.length > 3) {
+      packageY += 4
+      doc.text(`+${bookingData.packages.length - 3} more packages`, centerX + 2, packageY)
+    }
+  } else {
+    // Fallback to legacy single package display
+    doc.text("L", centerX + 5, yPosition + 12)
+    doc.text("W", centerX + 15, yPosition + 12)
+    doc.text("H", centerX + 25, yPosition + 12)
+    doc.text("Pcs", centerX + 35, yPosition + 12)
 
-  doc.text("Received in Good Condition By Consignee.", centerX + 2, yPosition + 32)
-  doc.text("SIGNATURE:-_______________", centerX + 2, yPosition + 36)
-  doc.text("DATE:- _______________     TIME:-___________", centerX + 2, yPosition + 40)
+    doc.text(bookingData.lengthCm || "0", centerX + 5, yPosition + 18)
+    doc.text(bookingData.widthCm || "0", centerX + 15, yPosition + 18)
+    doc.text(bookingData.heightCm || "0", centerX + 25, yPosition + 18)
+    doc.text(bookingData.pieces, centerX + 35, yPosition + 18)
+  }
 
-  // Reference number section (right)
-  doc.setFillColor(...headerGray)
-  doc.rect(rightX, yPosition, 30, 6, "F")
-  doc.setTextColor(255, 255, 255)
-  doc.setFontSize(8)
-  doc.setFont("helvetica", "bold")
-  doc.text("REFERENCE NUMBER", rightX + 2, yPosition + 4)
-
-  doc.setTextColor(...black)
-  doc.setFontSize(9)
-  doc.setFont("helvetica", "normal")
-  doc.rect(rightX, yPosition + 6, 30, 15)
-  doc.text(bookingData.referenceNumber || bookingData.bookingNumber, rightX + 2, yPosition + 15)
+  doc.text(`TOTAL VOL. WEIGHT: ${totalDimensionalWeight.toFixed(2)} KG`, centerX + 2, yPosition + 28)
 
   // Footer
   yPosition += 50

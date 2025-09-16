@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,9 +10,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
-import { Calculator, Package, Truck, User, Building, Download, CheckCircle } from "lucide-react"
+import { Package, Truck, User, Building, Download, CheckCircle, Search } from "lucide-react"
 import { countries } from "@/lib/countries"
 import { downloadBookingPDF, type BookingData } from "@/lib/pdf-generator"
+import MultipleDimensionsForm, { type DimensionData } from "@/components/multiple-dimensions-form"
 
 interface BookingFormData {
   // Shipper Information
@@ -44,21 +44,27 @@ interface BookingFormData {
   referenceNumber: string
   pieces: string
   productValue: string
-  billingWeightKg: string
-  billingWeightGm: string
-  grossWeight: string
   itemType: string
   remarks: string
   itemDescription: string
 
-  // Dimensions for weight calculation
-  lengthCm: string
-  widthCm: string
-  heightCm: string
-  dimPieces: string
+  billingWeightKg: string
+  billingWeightGm: string
+  grossWeight: string
 }
 
 export default function BookingForm() {
+  const [dimensions, setDimensions] = useState<DimensionData[]>([
+    {
+      lengthCm: "",
+      widthCm: "",
+      heightCm: "",
+      pieces: "1",
+      description: "",
+      dimensionalWeight: 0,
+    },
+  ])
+
   const [formData, setFormData] = useState<BookingFormData>({
     shipperCompanyName: "",
     shipperContactPerson: "",
@@ -83,52 +89,37 @@ export default function BookingForm() {
     referenceNumber: "",
     pieces: "1",
     productValue: "",
-    billingWeightKg: "",
-    billingWeightGm: "",
-    grossWeight: "",
     itemType: "",
     remarks: "",
     itemDescription: "",
-    lengthCm: "",
-    widthCm: "",
-    heightCm: "",
-    dimPieces: "1",
+    billingWeightKg: "",
+    billingWeightGm: "",
+    grossWeight: "",
   })
 
-  const [dimensionalWeight, setDimensionalWeight] = useState<number>(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
   const [bookingData, setBookingData] = useState<BookingData | null>(null)
 
   useEffect(() => {
-    const length = Number.parseFloat(formData.lengthCm) || 0
-    const width = Number.parseFloat(formData.widthCm) || 0
-    const height = Number.parseFloat(formData.heightCm) || 0
-    const pieces = Number.parseFloat(formData.dimPieces) || 1
+    const calculateGrossWeight = () => {
+      const weightKg = Number.parseFloat(formData.billingWeightKg) || 0
+      const weightGm = Number.parseFloat(formData.billingWeightGm) || 0
 
-    if (length > 0 && width > 0 && height > 0) {
-      const dimWeight = (length * width * height * pieces) / 5000
-      setDimensionalWeight(dimWeight)
-    } else {
-      setDimensionalWeight(0)
+      // Convert grams to kg and add to kg weight
+      const totalWeightKg = weightKg + weightGm / 1000
+
+      // Only update if there's a meaningful change and at least one weight field has a value
+      if ((weightKg > 0 || weightGm > 0) && totalWeightKg !== Number.parseFloat(formData.grossWeight)) {
+        setFormData((prev) => ({
+          ...prev,
+          grossWeight: totalWeightKg.toFixed(3),
+        }))
+      }
     }
-  }, [formData.lengthCm, formData.widthCm, formData.heightCm, formData.dimPieces])
 
-  useEffect(() => {
-    const billingKg = Number.parseFloat(formData.billingWeightKg) || 0
-    const billingGm = Number.parseFloat(formData.billingWeightGm) || 0
-    const totalBillingWeight = billingKg + billingGm / 1000 // Convert gm to kg
-
-    // Gross weight is the higher of billing weight or dimensional weight
-    const calculatedGrossWeight = Math.max(totalBillingWeight, dimensionalWeight)
-
-    if (calculatedGrossWeight > 0) {
-      setFormData((prev) => ({
-        ...prev,
-        grossWeight: calculatedGrossWeight.toFixed(3),
-      }))
-    }
-  }, [formData.billingWeightKg, formData.billingWeightGm, dimensionalWeight])
+    calculateGrossWeight()
+  }, [formData.billingWeightKg, formData.billingWeightGm])
 
   const handleInputChange = (field: keyof BookingFormData, value: string) => {
     setFormData((prev) => ({
@@ -143,13 +134,29 @@ export default function BookingForm() {
 
     try {
       console.log("[v0] Submitting form data:", formData)
+      console.log("[v0] Submitting dimensions data:", dimensions)
+
+      const packages = dimensions.map((dim) => ({
+        billingWeightKg: formData.billingWeightKg,
+        billingWeightGm: formData.billingWeightGm,
+        grossWeight: formData.grossWeight,
+        lengthCm: dim.lengthCm,
+        widthCm: dim.widthCm,
+        heightCm: dim.heightCm,
+        pieces: dim.pieces,
+        dimensionalWeight: dim.dimensionalWeight,
+        description: dim.description,
+      }))
 
       const response = await fetch("/api/bookings", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          packages: packages, // Send packages instead of dimensions
+        }),
       })
 
       const result = await response.json()
@@ -190,17 +197,28 @@ export default function BookingForm() {
         referenceNumber: formData.referenceNumber,
         pieces: formData.pieces,
         productValue: formData.productValue,
-        billingWeightKg: formData.billingWeightKg,
-        billingWeightGm: formData.billingWeightGm,
-        grossWeight: formData.grossWeight,
         itemType: formData.itemType,
         remarks: formData.remarks,
         itemDescription: formData.itemDescription,
 
-        lengthCm: formData.lengthCm,
-        widthCm: formData.widthCm,
-        heightCm: formData.heightCm,
-        dimensionalWeight: dimensionalWeight > 0 ? dimensionalWeight : undefined,
+        billingWeightKg: formData.billingWeightKg,
+        billingWeightGm: formData.billingWeightGm,
+        grossWeight: formData.grossWeight,
+        lengthCm: dimensions[0]?.lengthCm || "",
+        widthCm: dimensions[0]?.widthCm || "",
+        heightCm: dimensions[0]?.heightCm || "",
+        dimensionalWeight: dimensions.reduce((sum, dim) => sum + dim.dimensionalWeight, 0) || undefined,
+        packages: dimensions.map((dim) => ({
+          billingWeightKg: Number.parseFloat(formData.billingWeightKg) || 0,
+          billingWeightGm: Number.parseFloat(formData.billingWeightGm) || 0,
+          grossWeight: Number.parseFloat(formData.grossWeight) || 0,
+          lengthCm: Number.parseFloat(dim.lengthCm) || 0,
+          widthCm: Number.parseFloat(dim.widthCm) || 0,
+          heightCm: Number.parseFloat(dim.heightCm) || 0,
+          pieces: Number.parseInt(dim.pieces) || 1,
+          dimensionalWeight: dim.dimensionalWeight,
+          description: dim.description,
+        })),
       }
 
       setBookingData(pdfData)
@@ -246,17 +264,23 @@ export default function BookingForm() {
       referenceNumber: "",
       pieces: "1",
       productValue: "",
-      billingWeightKg: "",
-      billingWeightGm: "",
-      grossWeight: "",
       itemType: "",
       remarks: "",
       itemDescription: "",
-      lengthCm: "",
-      widthCm: "",
-      heightCm: "",
-      dimPieces: "1",
+      billingWeightKg: "",
+      billingWeightGm: "",
+      grossWeight: "",
     })
+    setDimensions([
+      {
+        lengthCm: "",
+        widthCm: "",
+        heightCm: "",
+        pieces: "1",
+        description: "",
+        dimensionalWeight: 0,
+      },
+    ])
   }
 
   if (isSuccess && bookingData) {
@@ -274,21 +298,31 @@ export default function BookingForm() {
             <CardContent className="p-8 text-center space-y-6">
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold text-slate-900">Booking Number</h3>
-                <Badge variant="outline" className="text-lg px-4 py-2 bg-blue-50 text-blue-800 border-blue-200">
+                <Badge variant="outline" className="text-lg px-4 py-2 bg-blue-50 text-[#0253A3] border-blue-200">
                   {bookingData.bookingNumber}
                 </Badge>
               </div>
 
               <div className="space-y-2">
                 <p className="text-slate-600">
-                  Your booking has been saved to our system. You can download your invoice below.
+                  Your booking has been saved to our system. You can download your invoice below or track your shipment
+                  anytime.
                 </p>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={handleDownloadPDF} className="bg-blue-600 hover:bg-blue-700 text-white" size="lg">
+                <Button onClick={handleDownloadPDF} className="bg-[#0253A3] hover:[#0253A3] text-white" size="lg">
                   <Download className="h-4 w-4 mr-2" />
                   Download Invoice PDF
+                </Button>
+                <Button
+                  onClick={() => window.open("/track", "_blank")}
+                  variant="outline"
+                  size="lg"
+                  className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                >
+                  <Search className="h-4 w-4 mr-2" />
+                  Track Shipment
                 </Button>
                 <Button onClick={handleNewBooking} variant="outline" size="lg">
                   Create New Booking
@@ -303,18 +337,18 @@ export default function BookingForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-8">
-      <div className="container mx-auto py-10">
+      <div className="mx-auto container">
         {/* Header */}
-        <div className="mb-8">
-            <h2 className="text-3xl font-bold">ONLINE <span className="text-[#0253A3]">BOOKING</span></h2>
-            <p className="font-medium">Complete the form below to book your shipment. All fields marked with * are required.</p>
+        <div className="mb-8 text-left">
+          <h2 className="text-2xl sm:text-3xl font-bold">ONLINE <span className="text-[#0253A3]">BOOKING</span></h2>
+          <p className="sm:font-medium text-orange-500">Complete the form below to book your shipment. All fields marked with * are required.</p>
         </div>
-
-        <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-5">
+        <form onSubmit={handleSubmit} className="grid xl:grid-cols-2 gap-10">
           {/* Shipper Information */}
           <Card className="border-slate-200 shadow-sm">
             <CardHeader className="bg-slate-50 border-b border-slate-200">
-              <CardTitle className="flex items-center gap-2 text-slate-900 text-2xl">
+              <CardTitle className="flex items-center gap-2 text-slate-900">
+                <Building className="h-5 w-5 text-[#0253A3]" />
                 Shipper Information
               </CardTitle>
               <CardDescription>Details of the sender</CardDescription>
@@ -428,7 +462,8 @@ export default function BookingForm() {
           {/* Consignee Information */}
           <Card className="border-slate-200 shadow-sm">
             <CardHeader className="bg-slate-50 border-b border-slate-200">
-              <CardTitle className="flex items-center gap-2 text-slate-900 text-2xl">
+              <CardTitle className="flex items-center gap-2 text-slate-900">
+                <User className="h-5 w-5 text-[#0253A3]" />
                 Consignee Information
               </CardTitle>
               <CardDescription>Details of the recipient</CardDescription>
@@ -540,15 +575,16 @@ export default function BookingForm() {
           </Card>
 
           {/* Shipment Information */}
-          <Card className="border-slate-200 shadow-sm col-span-2">
+          <Card className="border-slate-200 shadow-sm">
             <CardHeader className="bg-slate-50 border-b border-slate-200">
-              <CardTitle className="flex items-center gap-2 text-slate-900 text-2xl">
+              <CardTitle className="flex items-center gap-2 text-slate-900">
+                <Package className="h-5 w-5 text-[#0253A3]" />
                 Shipment Information
               </CardTitle>
               <CardDescription>Package details and payment information</CardDescription>
             </CardHeader>
             <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
                   <Label htmlFor="paymentMode">Payment Mode *</Label>
                   <Select
@@ -577,7 +613,7 @@ export default function BookingForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="referenceNumber">Ref (if any)</Label>
+                  <Label htmlFor="referenceNumber">Reference Number</Label>
                   <Input
                     id="referenceNumber"
                     value={formData.referenceNumber}
@@ -609,13 +645,33 @@ export default function BookingForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="billingWeightKg">Billing Weight (kg)</Label>
+                  <Label htmlFor="itemType">Item Type *</Label>
+                  <Select value={formData.itemType} onValueChange={(value) => handleInputChange("itemType", value)}>
+                    <SelectTrigger className="border-slate-300">
+                      <SelectValue placeholder="Select item type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="SPX">SPX (Express)</SelectItem>
+                      <SelectItem value="Docs">Documents</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <Separator className="my-6" />
+
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-slate-900">Weight Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="billingWeightKg">Billing Weight (kg) *</Label>
                     <Input
                       id="billingWeightKg"
                       type="number"
                       step="0.001"
                       value={formData.billingWeightKg}
                       onChange={(e) => handleInputChange("billingWeightKg", e.target.value)}
+                      required
                       className="border-slate-300"
                     />
                   </div>
@@ -624,7 +680,7 @@ export default function BookingForm() {
                     <Input
                       id="billingWeightGm"
                       type="number"
-                      step="0.001"
+                      step="0.1"
                       value={formData.billingWeightGm}
                       onChange={(e) => handleInputChange("billingWeightGm", e.target.value)}
                       className="border-slate-300"
@@ -638,25 +694,31 @@ export default function BookingForm() {
                       step="0.001"
                       value={formData.grossWeight}
                       onChange={(e) => handleInputChange("grossWeight", e.target.value)}
-                      className="border-slate-300 bg-slate-300"
-                      readOnly
-                      title="Auto-calculated as the higher of billing weight or dimensional weight"
+                      className="border-slate-300"
                     />
                   </div>
-                <div className="space-y-2">
-                  <Label htmlFor="itemType">Item Type *</Label>
-                  <Select value={formData.itemType} onValueChange={(value) => handleInputChange("itemType", value)}>
-                    <SelectTrigger className="border-slate-300">
-                      <SelectValue placeholder="Select item type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="SPX">SPX (Express)</SelectItem>
-                      <SelectItem value="Docs">Documents</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="remarks">Remarks (if any)</Label>
+              </div>
+
+              <Separator className="my-6" />
+
+              {/* Additional Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-slate-900">Additional Information</h3>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="itemDescription">Item Description *</Label>
+                    <Textarea
+                      id="itemDescription"
+                      value={formData.itemDescription}
+                      onChange={(e) => handleInputChange("itemDescription", e.target.value)}
+                      required
+                      className="border-slate-300"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="remarks">Remarks</Label>
                     <Textarea
                       id="remarks"
                       value={formData.remarks}
@@ -665,92 +727,20 @@ export default function BookingForm() {
                       rows={2}
                     />
                   </div>
-                <div className="space-y-2 col-span-4">
-                    <Label htmlFor="itemDescription">Item Description Input goods decsription with quantity. For HAWB Print And Manefiest Creating *</Label>
-                    <Textarea
-                      id="itemDescription"
-                      placeholder="Pant 05 Pcs, Shirt 02 Pcs, Scarf 01 Pcs..."
-                      value={formData.itemDescription}
-                      onChange={(e) => handleInputChange("itemDescription", e.target.value)}
-                      required
-                      className="border-slate-300"
-                      rows={3}
-                    />
-                  </div>
-              </div>
-    
-              {/* Dimensional Weight Calculator */}
-              <div className="space-y-4 mt-5">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-lg font-semibold text-slate-900">Dimensional Weight (if any)</h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="lengthCm">Length (cm)</Label>
-                    <Input
-                      id="lengthCm"
-                      type="number"
-                      step="0.01"
-                      value={formData.lengthCm}
-                      onChange={(e) => handleInputChange("lengthCm", e.target.value)}
-                      className="border-slate-300"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="widthCm">Width (cm)</Label>
-                    <Input
-                      id="widthCm"
-                      type="number"
-                      step="0.01"
-                      value={formData.widthCm}
-                      onChange={(e) => handleInputChange("widthCm", e.target.value)}
-                      className="border-slate-300"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="heightCm">Height (cm)</Label>
-                    <Input
-                      id="heightCm"
-                      type="number"
-                      step="0.01"
-                      value={formData.heightCm}
-                      onChange={(e) => handleInputChange("heightCm", e.target.value)}
-                      className="border-slate-300"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="dimPieces">Pcs.</Label>
-                    <Input
-                      id="dimPieces"
-                      type="number"
-                      min="1"
-                      value={formData.dimPieces}
-                      onChange={(e) => handleInputChange("dimPieces", e.target.value)}
-                      className="border-slate-300"
-                    />
-                  </div>
-                </div>
-                {dimensionalWeight > 0 && (
-                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                        Calculated Dimensional Weight: {dimensionalWeight.toFixed(3)} kg
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-blue-700 mt-2">Formula: (Length × Width × Height × Pcs) ÷ 5000</p>
-                  </div>
-                )}
               </div>
             </CardContent>
           </Card>
 
+          <MultipleDimensionsForm dimensions={dimensions} onDimensionsChange={setDimensions} />
+
           {/* Submit Button */}
-          <div>
+          <div className="">
             <Button
               type="submit"
               size="lg"
               disabled={isSubmitting}
-              className="bg-[#0253A3] hover:bg-[#004285] text-white px-8 py-3 text-lg font-semibold cursor-pointer"
+              className="bg-[#0253A3] hover:bg-[#0253A3] text-white px-8 py-3 text-lg font-semibold"
             >
               {isSubmitting ? "Processing..." : "Submit Booking"}
             </Button>

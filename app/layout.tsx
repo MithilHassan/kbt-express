@@ -6,9 +6,8 @@ import { Footer } from '@/components/Footer'
 
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.app',
+  title: 'KBT EXPRESS',
+  description: 'Global Logistic Solution',
 }
 
 export default function RootLayout({

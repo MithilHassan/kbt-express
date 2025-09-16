@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { MultipleDimensionsForm } from "@/components/multiple-dimensions-form"
 
 import { useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
@@ -11,7 +12,6 @@ import { Button } from "@/components/ui/button"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
 import { Calculator, Package, User, Building, ArrowLeft, Save } from "lucide-react"
 import { countries } from "@/lib/countries"
 
@@ -53,9 +53,14 @@ interface EditBookingFormData {
   status: string
 
   // Dimensions for weight calculation
-  lengthCm: string
-  widthCm: string
-  heightCm: string
+  packages: Array<{
+    lengthCm: string
+    widthCm: string
+    heightCm: string
+    pieces: string
+    description: string
+    dimensionalWeight: number
+  }>
 }
 
 export default function EditBookingPage({ params }: { params: { id: string } }) {
@@ -91,12 +96,9 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
     remarks: "",
     itemDescription: "",
     status: "pending",
-    lengthCm: "",
-    widthCm: "",
-    heightCm: "",
+    packages: [],
   })
 
-  const [dimensionalWeight, setDimensionalWeight] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [bookingNumber, setBookingNumber] = useState("")
@@ -104,19 +106,6 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
   useEffect(() => {
     fetchBooking()
   }, [params.id])
-
-  useEffect(() => {
-    const length = Number.parseFloat(formData.lengthCm) || 0
-    const width = Number.parseFloat(formData.widthCm) || 0
-    const height = Number.parseFloat(formData.heightCm) || 0
-
-    if (length > 0 && width > 0 && height > 0) {
-      const dimWeight = (length * width * height) / 5000
-      setDimensionalWeight(dimWeight)
-    } else {
-      setDimensionalWeight(0)
-    }
-  }, [formData.lengthCm, formData.widthCm, formData.heightCm])
 
   const fetchBooking = async () => {
     try {
@@ -156,9 +145,15 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
           remarks: booking.remarks || "",
           itemDescription: booking.item_description || "",
           status: booking.status || "pending",
-          lengthCm: booking.length_cm?.toString() || "",
-          widthCm: booking.width_cm?.toString() || "",
-          heightCm: booking.height_cm?.toString() || "",
+          packages:
+            booking.packages?.map((pkg: any) => ({
+              lengthCm: pkg.length_cm?.toString() || "",
+              widthCm: pkg.width_cm?.toString() || "",
+              heightCm: pkg.height_cm?.toString() || "",
+              pieces: pkg.pieces?.toString() || "1",
+              description: pkg.description || "",
+              dimensionalWeight: pkg.dimensional_weight || 0,
+            })) || [],
         })
         setBookingNumber(booking.booking_number)
       } else {
@@ -603,50 +598,14 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
                   <Calculator className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold text-foreground">Dimensional Weight Calculator</h3>
+                  <h3 className="text-lg font-semibold text-foreground">Package Dimensions</h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="lengthCm">Length (cm)</Label>
-                    <Input
-                      id="lengthCm"
-                      type="number"
-                      step="0.01"
-                      value={formData.lengthCm}
-                      onChange={(e) => handleInputChange("lengthCm", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="widthCm">Width (cm)</Label>
-                    <Input
-                      id="widthCm"
-                      type="number"
-                      step="0.01"
-                      value={formData.widthCm}
-                      onChange={(e) => handleInputChange("widthCm", e.target.value)}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="heightCm">Height (cm)</Label>
-                    <Input
-                      id="heightCm"
-                      type="number"
-                      step="0.01"
-                      value={formData.heightCm}
-                      onChange={(e) => handleInputChange("heightCm", e.target.value)}
-                    />
-                  </div>
-                </div>
-                {dimensionalWeight > 0 && (
-                  <div className="mt-4 p-4 bg-accent/10 border border-accent/20 rounded-lg">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="secondary" className="bg-accent/20 text-accent-foreground">
-                        Calculated Dimensional Weight: {dimensionalWeight.toFixed(3)} kg
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mt-2">Formula: (Length × Width × Height) ÷ 5000</p>
-                  </div>
-                )}
+                <MultipleDimensionsForm
+                  dimensions={formData.packages}
+                  onDimensionsChange={(dimensions) => {
+                    setFormData((prev) => ({ ...prev, packages: dimensions }))
+                  }}
+                />
               </div>
 
               <Separator className="my-6" />
