@@ -13,6 +13,7 @@ export const HeroBackground = () => (
 
 
 import Link from "next/link";
+import { useState } from "react";
 
 export const HeroContent = () => (
   <div className="relative z-10 container mx-auto px-4 sm:px-6 lg:px-8 py-28 sm:py-40 text-left animate-fade-in">
@@ -33,32 +34,45 @@ export const HeroContent = () => (
   </div>
 );
 
-export const TrackShipmentBar = () => (
-  <div className="bg-[#0253A3] py-6">
-    <div className="container mx-auto flex flex-row justify-between items-center px-4 gap-6 sm:gap-0">
-      <div className="text-center sm:text-left hidden sm:block">
-        <p className="text-white font-semibold text-lg">Quick Connect</p>
-        <span className="text-white text-sm block sm:inline-block">
-          +88 01842-007653
-        </span>
-      </div>
+export function TrackShipmentBar() {
+  const [bookingId, setBookingId] = useState("");
 
-      <div className="w-full sm:w-auto text-left">
-        <p className="text-white font-semibold text-lg mb-2">Track your shipment</p>
-        <div className="flex flex-row items-center">
-          <input
-            type="text"
-            placeholder="Enter your tracking no."
-            className="bg-white px-4 py-2 rounded-l-md rounded-r-none focus:outline-none text-sm w-full sm:w-64"
-          />
-          <button className="bg-orange-400 text-white px-5 py-2 rounded-r-md rounded-l-none ww-auto text-sm cursor-pointer">
-            Track
-          </button>
+  return ( // ✅ You need to return the JSX here
+    <div className="bg-[#0253A3] py-6">
+      <div className="container mx-auto flex flex-row justify-between items-center px-4 gap-6 sm:gap-0">
+        <div className="text-center sm:text-left hidden sm:block">
+          <p className="text-white font-semibold text-lg">Quick Connect</p>
+          <span className="text-white text-sm block sm:inline-block">
+            +880 1792-111261
+          </span>
+        </div>
+
+        <div className="w-full sm:w-auto text-left">
+          <p className="text-white font-semibold text-lg mb-2">Track your shipment</p>
+          <div className="flex flex-row items-center">
+            <input
+              type="text"
+              placeholder="Enter your tracking no."
+              value={bookingId}
+              onChange={(e) => setBookingId(e.target.value)} // ✅ updates state
+              className="bg-white px-4 py-2 rounded-l-md rounded-r-none focus:outline-none text-sm w-full sm:w-64"
+            />
+            <Link
+              className="bg-orange-400 text-white px-5 py-2 rounded-r-md rounded-l-none ww-auto text-sm cursor-pointer"
+              href={`/${bookingId}`}
+            >
+              Track
+            </Link>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
+}
+
+  
+
+
 
 
 

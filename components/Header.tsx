@@ -3,7 +3,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import logo from "../public/logo.png";
-import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa6";
+import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaWhatsapp, FaXTwitter } from "react-icons/fa6";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import { usePathname } from "next/navigation";
 
@@ -23,12 +23,44 @@ export function Header() {
       {/* Top bar */}
       <div className="bg-[#0253A3] text-white text-sm py-2">
         <div className="container mx-auto flex flex-col md:flex-row justify-between items-center gap-2 px-4 text-center md:text-left">
-          <span>Helpline: +88 01842-007653</span>
+          <span>Helpline: +880 1792-111261</span>
           <span>House # 04, Road # 11, Sector # 01 Uttara, Dhaka-1230</span>
           <div className="flex gap-3">
-            <FaFacebook className="cursor-pointer" title="Facebook" />
-            <FaTwitter className="cursor-pointer" title="Twitter" />
-            <FaInstagram className="cursor-pointer" title="Instagram" />
+            <a
+              href="https://www.facebook.com/people/KBT-Express/61579092331875/?mibextid=wwXIfr&rdid=POJCOfg5XngczYET&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1Mmefv2knA%2F%3Fmibextid%3DwwXIfr"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaFacebook className="cursor-pointer" title="Facebook" />
+            </a>
+            <a
+              href="https://www.instagram.com/invites/contact/?igsh=12khoqh3qqmxn&utm_content=zipg4fi"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaInstagram className="cursor-pointer" title="Instagram" />
+            </a>
+            <a
+              href="https://www.linkedin.com/company/kbt-express"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaLinkedin className="cursor-pointer" title="Linkedin" />  
+            </a>
+            <a
+              href="https://x.com/kbtexpress_"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaXTwitter className="cursor-pointer" title="Twitter" />
+            </a>
+            <a
+              href=""
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <FaWhatsapp className="cursor-pointer" title="Whatsapp" />
+            </a>
           </div>
         </div>
       </div>

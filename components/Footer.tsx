@@ -1,6 +1,6 @@
 'use client';
 
-import { FaFacebook, FaInstagram, FaTwitter } from "react-icons/fa6";
+import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter, FaWhatsapp, FaXTwitter } from "react-icons/fa6";
 import Image from "next/image";
 import logo from "../public/logo.png";
 
@@ -50,14 +50,40 @@ export const Footer = () => (
           KBT Express is your trusted courier partner in Bangladesh. With 26+ years of industry experience, we provide international express delivery, door-to-door service, warehousing, and freight solutions.
         </p>
         <div className="flex gap-4 mt-4 text-xl">
-          <a href="https://facebook.com" aria-label="Facebook" className="hover:text-white transition">
-            <FaFacebook />
+          <a
+            href="https://www.facebook.com/people/KBT-Express/61579092331875/?mibextid=wwXIfr&rdid=POJCOfg5XngczYET&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F1Mmefv2knA%2F%3Fmibextid%3DwwXIfr"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FaFacebook className="cursor-pointer" title="Facebook" />
           </a>
-          <a href="https://twitter.com" aria-label="Twitter" className="hover:text-white transition">
-            <FaTwitter />
+          <a
+            href="https://www.instagram.com/invites/contact/?igsh=12khoqh3qqmxn&utm_content=zipg4fi "
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FaInstagram className="cursor-pointer" title="Instagram" />
           </a>
-          <a href="https://instagram.com" aria-label="Instagram" className="hover:text-white transition">
-            <FaInstagram />
+          <a
+            href="https://www.linkedin.com/company/kbt-express"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FaLinkedin className="cursor-pointer" title="Linkedin" />  
+          </a>
+          <a
+            href="https://x.com/kbtexpress_"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FaXTwitter className="cursor-pointer" title="Twitter" />
+          </a>
+          <a
+            href=""
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FaWhatsapp className="cursor-pointer" title="Whatsapp" />
           </a>
         </div>
       </div>
@@ -69,7 +95,6 @@ export const Footer = () => (
           <li><a href="#" className="hover:text-white transition">Home</a></li>
           <li><a href="#" className="hover:text-white transition">About Us</a></li>
           <li><a href="#" className="hover:text-white transition">Services</a></li>
-          <li><a href="#" className="hover:text-white transition">Terms & Condition</a></li>
           <li><a href="#" className="hover:text-white transition">Contact Us</a></li>
         </ul>
       </nav>
@@ -77,7 +102,7 @@ export const Footer = () => (
       {/* Contact Info */}
       <address className="not-italic text-sm">
         <h4 className="font-bold text-lg mb-4">GET IN TOUCH</h4>
-        <p className="mb-2">Phone: <a href="tel:+8801842007653" className="hover:text-white transition">+88-01842-007653</a></p>
+        <p className="mb-2">Phone: <a href="tel:+8801842007653" className="hover:text-white transition">+880 1792-111261</a></p>
         <p>Email: <a href="mailto:info@kbtexpress.net" className="hover:text-white transition">info@kbtexpress.net</a></p>
       </address>
     </div>

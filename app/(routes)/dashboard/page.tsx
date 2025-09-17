@@ -102,7 +102,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <a
-            href="/"
+            href="/booking"
             className="flex items-center gap-3 p-4 rounded-lg border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
           >
             <Package className="h-5 w-5 text-primary" />

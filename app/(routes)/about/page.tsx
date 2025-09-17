@@ -13,7 +13,7 @@ const About = () => (
         {/* Text Content */}
         <div className="space-y-6 text-lg text-justify leading-relaxed">
           <p>
-            KBT Express started its journey having more than 20 years of experienced employees, expertise, and infrastructure.
+            KBT Express started its journey having more than 26 years of experienced employees, expertise, and infrastructure.
           </p>
           <p>
             KBT Express is an international express delivery partner in Bangladesh offering door-to-door services. Our aim is to provide the best delivery services to all our clients through strategic global partners.

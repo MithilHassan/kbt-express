@@ -651,8 +651,8 @@ export default function BookingForm() {
                       <SelectValue placeholder="Select item type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SPX">SPX (Express)</SelectItem>
                       <SelectItem value="Docs">Documents</SelectItem>
+                      <SelectItem value="Non Documents">Non Documents</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
