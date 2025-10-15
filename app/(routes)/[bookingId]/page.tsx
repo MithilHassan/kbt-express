@@ -85,7 +85,7 @@ export default function TrackingPage() {
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-8">
-      <div className="mx-auto container">
+      <div className="mx-auto max-w-4xl">
         {/* Header */}
         {isLoading && (
           <div className="text-center text-blue-700 font-medium mb-6">Loading tracking information...</div>

@@ -8,7 +8,7 @@
   --foreground: #1f2937;
   --card: #f1f5f9;
   --card-foreground: #374151;
-  --popover: #3b82f6;
+  --popover: #0253A3;
   --popover-foreground: #ffffff;
   --primary: #1f2937;
   --primary-foreground: #ffffff;
@@ -33,10 +33,10 @@
   --sidebar-foreground: #374151;
   --sidebar-primary: #1f2937;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #3b82f6;
+  --sidebar-accent: #0253A3;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #e5e7eb;
-  --sidebar-ring: #3b82f6;
+  --sidebar-ring: #0253A3;
 }
 
 .dark {

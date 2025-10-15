@@ -106,7 +106,6 @@ export function StatusUpdateDialog({ bookingId, currentStatus, onStatusUpdated, 
                         </div>
                         <div className="flex flex-col gap-0.5">
                           <span className="font-medium text-sm">{option.label}</span>
-                          <span className="text-xs text-muted-foreground">{option.description}</span>
                         </div>
                       </div>
                     </SelectItem>

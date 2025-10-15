@@ -34,7 +34,8 @@ interface DPEXTimelineProps {
 export function DPEXTimeline({ bookingData, getCountryName, onNewSearch }: DPEXTimelineProps) {
   const [history, setHistory] = useState<StatusHistoryEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
-
+  const origin = ["Documentation Prepared", "Shipment Finalised", "Pickup Arranged", "Arrived Hub (Origin)"]
+  const destination = ["Sorted to Destination", "In Transit to Destination","Arrived Depot (Destination)","Released from Customs", "Delivered",]
   useEffect(() => {
     fetchStatusHistory()
   }, [bookingData.id])
@@ -152,14 +153,20 @@ export function DPEXTimeline({ bookingData, getCountryName, onNewSearch }: DPEXT
                   </div>
 
                   {/* Content card - alternating sides */}
-                  <div className={`flex ${isLeft ? "justify-start pr-[52%]" : "justify-end pl-[52%]"}`}>
+                  <div className={`flex ${isLeft ? "justify-start pr-[52%] text-right" : "justify-end pl-[52%]"}`}>
                     <Card className="border-slate-200 shadow-sm w-full">
                       <CardContent className="p-4">
                         <h3 className="font-bold text-slate-900 mb-1">{config.label}</h3>
-                        {entry.location && <p className="text-sm text-slate-600 mb-2">{entry.location}</p>}
+                        <p className="text-sm text-slate-600 mb-2">
+                          {destination.includes(config.label)
+                            ? getCountryName(bookingData.consignee_country)
+                            : origin.includes(config.label)
+                              ? getCountryName(bookingData.shipper_country)
+                              : ""}
+                        </p>
                         {entry.notes && (
                           <div className="mt-2 p-2 bg-slate-50 rounded border border-slate-200">
-                            <p className="text-xs text-slate-500 font-medium mb-1">Remarks:</p>
+                            <p className="text-xs text-slate-500 font-medium mb-1">Note:</p>
                             <p className="text-sm text-slate-700">{entry.notes}</p>
                           </div>
                         )}
@@ -168,7 +175,7 @@ export function DPEXTimeline({ bookingData, getCountryName, onNewSearch }: DPEXT
                   </div>
 
                   {/* Date/Time on opposite side */}
-                  <div className={`absolute top-0 ${isLeft ? "right-0 pr-4 text-right" : "left-0 pl-4 text-left"}`}>
+                  <div className={`absolute top-1/2 ${isLeft ? "left-[55%] pr-4 text-left" : "right-[55%] pl-4 text-right"}`}>
                     <p className="text-sm font-medium text-slate-700">{formatDate(entry.timestamp)}</p>
                     <p className="text-sm text-slate-500">{formatTime(entry.timestamp)}</p>
                   </div>

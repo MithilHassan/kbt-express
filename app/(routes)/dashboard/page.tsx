@@ -103,7 +103,7 @@ export default function DashboardPage() {
         <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <a
             href="/booking"
-            className="flex items-center gap-3 p-4 rounded-lg border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
+            className="flex items-center gap-3 p-4 rounded-lg border border-border hover:shadow-sm transition-shadow"
           >
             <Package className="h-5 w-5 text-primary" />
             <div>
@@ -113,7 +113,7 @@ export default function DashboardPage() {
           </a>
           <a
             href="/dashboard/bookings"
-            className="flex items-center gap-3 p-4 rounded-lg border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
+            className="flex items-center gap-3 p-4 rounded-lg border border-border hover:shadow-sm transition-shadow"
           >
             <TrendingUp className="h-5 w-5 text-primary" />
             <div>
@@ -123,7 +123,7 @@ export default function DashboardPage() {
           </a>
           <a
             href="/dashboard/analytics"
-            className="flex items-center gap-3 p-4 rounded-lg border border-border hover:bg-accent hover:text-accent-foreground transition-colors"
+            className="flex items-center gap-3 p-4 rounded-lg border border-border hover:shadow-sm transition-shadow"
           >
             <CheckCircle className="h-5 w-5 text-primary" />
             <div>
