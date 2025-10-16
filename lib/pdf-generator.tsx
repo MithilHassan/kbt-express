@@ -52,6 +52,61 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
   // Generate tracking number for barcode
   const trackingNumber = bookingData.bookingNumber.replace(/[^A-Z0-9]/g, "").toUpperCase()
 
+  const totalVolumetricWeight = bookingData.packages?.reduce((total, pkg) => {
+  const volumetricPerPiece = (pkg.lengthCm * pkg.widthCm * pkg.heightCm) / 5000
+  return total + volumetricPerPiece * pkg.pieces
+  }, 0) ?? 0
+
+  const generateDimensionRows = () => {
+    if (bookingData.packages && bookingData.packages.length > 0) {
+      // Display packages in pairs (2 per row)
+      const rows: string[] = []
+      for (let i = 0; i < bookingData.packages.length; i += 2) {
+        const pkg1 = bookingData.packages[i]
+        const pkg2 = bookingData.packages[i + 1]
+
+        rows.push(`
+          <tr>
+            <td>${pkg1.lengthCm}</td>
+            <td>${pkg1.widthCm}</td>
+            <td>${pkg1.heightCm}</td>
+            <td>${pkg1.pieces}</td>
+            ${
+              pkg2
+                ? `
+              <td>${pkg2.lengthCm}</td>
+              <td>${pkg2.widthCm}</td>
+              <td>${pkg2.heightCm}</td>
+              <td>${pkg2.pieces}</td>
+            `
+                : `
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+            `
+            }
+          </tr>
+        `)
+      }
+      return rows.join("")
+    } else {
+      // Fallback to single dimension if no packages
+      return `
+        <tr>
+          <td>${bookingData.lengthCm || ""}</td>
+          <td>${bookingData.widthCm || ""}</td>
+          <td>${bookingData.heightCm || ""}</td>
+          <td>${bookingData.pieces || ""}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      `
+    }
+  }
+
   return `
     <!DOCTYPE html>
     <html>
@@ -88,7 +143,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
           }
           .tracking-number {
             font-family: 'Courier New', monospace;
-            font-size: 24px;
+            font-size: 18px;
             font-weight: bold;
             letter-spacing: 2px;
           }
@@ -178,7 +233,8 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
           .footer {
             background: #777;
             color: #fff;
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
             padding: 8px;
             font-size: 11px;
           }
@@ -201,7 +257,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             <div class="barcode-section">
               <div class="barcode-container">
                 <svg id="barcode-${trackingNumber}" class="barcode-image"></svg>
-                <div class="tracking-number">${trackingNumber}</div>
+                <div class="tracking-number">Tracking No:${trackingNumber}</div>
               </div>
             </div>
           </div>
@@ -231,8 +287,8 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
                     <div class="field-value">${bookingData.shipperContactPerson}</div>
                   </div>
                   <div class="field-group" style="border-bottom: 0;">
-                    <div class="field-label">Email Id</div>
-                    <div class="field-value">${bookingData.shipperEmail}</div>
+                  <div class="field-label">Telephone</div>
+                    <div class="field-value">${bookingData.shipperPhone}</div>
                   </div>
                 </div>
                 <div class="inline-fields">
@@ -241,8 +297,8 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
                     <div class="field-value">${bookingData.shipperZip}</div>
                   </div>
                   <div class="field-group">
-                    <div class="field-label">Telephone</div>
-                    <div class="field-value">${bookingData.shipperPhone}</div>
+                    <div class="field-label">Email Id</div>
+                    <div class="field-value">${bookingData.shipperEmail}</div>
                   </div>
                 </div>
               </div>
@@ -264,8 +320,8 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
                     <div class="field-value">${bookingData.consigneeContactPerson}</div>
                   </div>
                   <div class="field-group" style="border-bottom: 0;">
-                    <div class="field-label">Email Id</div>
-                    <div class="field-value">${bookingData.consigneeEmail}</div>
+                    <div class="field-label">Telephone</div>
+                    <div class="field-value">${bookingData.consigneePhone}</div>
                   </div>
                 </div>
                 <div class="inline-fields">
@@ -274,8 +330,8 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
                     <div class="field-value">${bookingData.consigneeZip}</div>
                   </div>
                   <div class="field-group">
-                    <div class="field-label">Telephone</div>
-                    <div class="field-value">${bookingData.consigneePhone}</div>
+                    <div class="field-label">Email Id</div>
+                    <div class="field-value">${bookingData.consigneeEmail}</div>
                   </div>
                 </div>
               </div>
@@ -310,31 +366,31 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
                 <div style="flex: 1; border-right: 5px solid #777;">
                   <div class="section-header" style="text-align: center;">Origin</div>
                   <div style="padding: 3px;"> 
-                    <div class="field-value" style="font-weight: bold; text-align: center; border: 2px solid #777;" >${bookingData.shipperCountry}</div>
+                    <div class="field-value" style="font-weight: bold; text-align: center; border: 2px solid #777; padding: 5px;" >${bookingData.shipperCountry}</div>
                   </div>
                 </div>
                 <div style="flex: 1;">
                   <div class="section-header" style="text-align: center;">Destination</div>
                   <div style="padding: 3px;"> 
-                  <div class="field-value" style="font-weight: bold; text-align: center; border: 2px solid #777;">${bookingData.consigneeCountry}</div>
+                  <div class="field-value" style="font-weight: bold; text-align: center; border: 2px solid #777; padding: 5px;">${bookingData.consigneeCountry}</div>
                   </div>
                 </div>
               </div>
               <div class="section-header">Consignment (Shipment) Details</div>
               <div style="padding: 3px;">
                 <div class="inline-fields">
-                  <div class="field-group" style= "display: flex; padding: 0px 5px; align-items: center; border-bottom: 0; border-right: 0;">
-                    <div class="field-label" style="flex:3; border-right: 2px solid #777;">Number of Package</div>
-                    <div class="field-value" style="flex:1; text-align: center">${bookingData.pieces}</div>
+                  <div class="field-group" style= "display: flex; align-items: center; border-bottom: 0; border-right: 0;">
+                    <div class="field-label">Number of Package:</div>
+                    <div class="field-label">${bookingData.pieces}</div>
                   </div>
-                  <div class="field-group" style="display: flex; padding: 0px 5px; align-items: center; border-bottom: 0;">
-                    <div class="field-label" style="flex:3; border-right: 2px solid #777;">A.Weight (KG)</div>
-                    <div class="field-value" style="flex:1; text-align: center">${bookingData.billingWeightKg}</div>
+                  <div class="field-group" style="display: flex; align-items: center; border-bottom: 0;">
+                    <div class="field-label">A.Weight (KG):</div>
+                    <div class="field-label">${bookingData.billingWeightKg}</div>
                   </div>
                 </div>
                 <div class="field-group" style="border-bottom: 0;">
                   <div class="field-label">Vol Weight (KG)</div>
-                  <div class="field-value">${bookingData.dimensionalWeight || "N/A"}</div>
+                  <div class="field-value">${totalVolumetricWeight}</div>
                 </div>
                 <div class="field-group" style="border-bottom: 0;">
                   <div class="field-label">Value for Customs (USD)</div>
@@ -376,20 +432,13 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
                     </tr>
                   </thead>
                   <tbody>
+                    ${generateDimensionRows()}
                     <tr>
-                      <td>${bookingData.lengthCm || ""}</td>
-                      <td>${bookingData.widthCm || ""}</td>
-                      <td>${bookingData.heightCm || ""}</td>
-                      <td>${bookingData.pieces || ""}</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td colspan="4"></td>
+                      <td colspan="4">
+                        Volumetric Weight (each calculated by L×W×H/5000)
+                      </td>
                       <td colspan="4" style="text-align: right; font-weight: bold;">
-                        VOLUMETRIC WEIGHT: ${bookingData.dimensionalWeight || "N/A"}
+                        = TOTAL VOLUMETRIC WEIGHT: ${totalVolumetricWeight.toFixed(2)} KG
                       </td>
                     </tr>
                   </tbody>
@@ -414,7 +463,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             <div class="col-narrow">
               <div class="section-header">Booking Date</div>
               <div style="padding: 3px;">
-                <div class="field-value" style="font-weight: bold; text-align: center; border: 2px solid #777;">${new Date(bookingData.createdAt).toLocaleDateString("en-GB")}</div>
+                <div class="field-value" style="font-weight: bold; text-align: center; border: 2px solid #777; padding: 5px;">${new Date(bookingData.createdAt).toLocaleDateString("en-GB")}</div>
               </div>
               <div class="section-header">Service Mode</div>
               <div style="padding: 3px;">
@@ -446,8 +495,14 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
                 
               <div class="section-header">Reference Number</div>
               <div style="padding: 3px;">
-                <div class="field-value" style="font-weight: bold; text-align: center; padding: 10px; padding: 8px; border: 2px solid #777;">
+                <div class="field-value" style="height: 35px; font-weight: bold; text-align: center; padding: 10px; padding: 8px; border: 2px solid #777;">
                   ${bookingData.referenceNumber || bookingData.bookingNumber}
+                </div>
+              </div>
+              <div class="section-header">Reference Name</div>
+              <div style="padding: 3px;">
+                <div class="field-value" style="height: 35px; font-weight: bold; text-align: center; padding: 10px; padding: 8px; border: 2px solid #777;">
+
                 </div>
               </div>
             </div>
@@ -456,7 +511,8 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
           <!-- Footer  --> 
             
           <div class="footer">
-            Email: support@kbtexpress.net
+            <a href="www.kbtexpress.net">www.kbtexpress.net</a>
+            <p>Email: support@kbtexpress.net</p>
           </div>
         </div>
       </body>
@@ -468,13 +524,13 @@ import { getBase64Logo } from "./getBase64Logo" // adjust the path accordingly
 
 export async function downloadBookingPDF(bookingData: BookingData) {
   try {
-    console.log("[v0] Starting PDF generation...")
+    console.log(" Starting PDF generation...")
 
     const jsPDF = (await import("jspdf")).default
     const html2canvas = (await import("html2canvas")).default
     const JsBarcode = (await import("jsbarcode")).default
 
-    console.log("[v0] Libraries loaded successfully")
+    console.log(" Libraries loaded successfully")
 
     const logoBase64 = await getBase64Logo()
 
@@ -488,7 +544,7 @@ export async function downloadBookingPDF(bookingData: BookingData) {
     container.style.backgroundColor = "white"
     document.body.appendChild(container)
 
-    console.log("[v0] Container created and added to DOM")
+    console.log(" Container created and added to DOM")
 
     const trackingNumber = bookingData.bookingNumber.replace(/[^A-Z0-9]/g, "").toUpperCase()
     const barcodeElement = container.querySelector(`#barcode-${trackingNumber}`)
@@ -502,9 +558,9 @@ export async function downloadBookingPDF(bookingData: BookingData) {
           displayValue: false,
           margin: 0,
         })
-        console.log("[v0] Barcode generated successfully")
+        console.log(" Barcode generated successfully")
       } catch (barcodeError) {
-        console.error("[v0] Error generating barcode:", barcodeError)
+        console.error(" Error generating barcode:", barcodeError)
       }
     }
 
@@ -515,7 +571,7 @@ export async function downloadBookingPDF(bookingData: BookingData) {
       backgroundColor: "#ffffff",
     })
 
-    console.log("[v0] Canvas created from HTML")
+    console.log(" Canvas created from HTML")
 
     const imgWidth = 210
     const imgHeight = (canvas.height * imgWidth) / canvas.width
@@ -529,15 +585,15 @@ export async function downloadBookingPDF(bookingData: BookingData) {
     const imgData = canvas.toDataURL("image/png")
     pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight)
 
-    console.log("[v0] Image added to PDF")
+    console.log(" Image added to PDF")
 
     pdf.save(`booking-${bookingData.bookingNumber}.pdf`)
 
-    console.log("[v0] PDF downloaded successfully")
+    console.log(" PDF downloaded successfully")
 
     document.body.removeChild(container)
   } catch (error) {
-    console.error("[v0] Error downloading PDF:", error)
+    console.error(" Error downloading PDF:", error)
     throw new Error(`Failed to generate PDF: ${error instanceof Error ? error.message : String(error)}`)
   }
 }

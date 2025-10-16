@@ -217,33 +217,46 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     }
 
     if (formData.packages && Array.isArray(formData.packages)) {
-      // Delete existing packages
+      console.log("[v0] Processing packages update, count:", formData.packages.length)
+      console.log("[v0] Packages in request:", formData.packages)
+
       const { error: deleteError } = await adminSupabase.from("packages").delete().eq("booking_id", params.id)
 
       if (deleteError) {
         console.error("[v0] Error deleting existing packages:", deleteError)
+        return NextResponse.json(
+          { error: `Failed to delete existing packages: ${deleteError.message}` },
+          { status: 500 },
+        )
       }
 
-      // Insert new packages
-      const packagesData = formData.packages.map((pkg: any) => ({
-        booking_id: params.id,
-        length_cm: Number.parseFloat(pkg.lengthCm) || 0,
-        width_cm: Number.parseFloat(pkg.widthCm) || 0,
-        height_cm: Number.parseFloat(pkg.heightCm) || 0,
-        pieces: Number.parseInt(pkg.pieces) || 1,
-        description: pkg.description || "",
-        dimensional_weight: pkg.dimensionalWeight || 0,
-        billing_weight_kg: Number.parseFloat(formData.billingWeightKg) || 0,
-        billing_weight_gm: Number.parseFloat(formData.billingWeightGm) || 0,
-        gross_weight: Number.parseFloat(formData.grossWeight) || 0,
-      }))
+      if (formData.packages.length > 0) {
+        const packagesData = formData.packages.map((pkg: any) => ({
+          booking_id: params.id,
+          length_cm: Number.parseFloat(pkg.lengthCm) || 0,
+          width_cm: Number.parseFloat(pkg.widthCm) || 0,
+          height_cm: Number.parseFloat(pkg.heightCm) || 0,
+          pieces: Number.parseInt(pkg.pieces) || 1,
+          description: pkg.description || "",
+          dimensional_weight: pkg.dimensionalWeight || 0,
+          billing_weight_kg: Number.parseFloat(formData.billingWeightKg) || 0,
+          billing_weight_gm: Number.parseFloat(formData.billingWeightGm) || 0,
+          gross_weight: Number.parseFloat(formData.grossWeight) || 0,
+        }))
 
-      const { error: insertError } = await adminSupabase.from("packages").insert(packagesData)
+        console.log("[v0] Inserting packages:", packagesData)
 
-      if (insertError) {
-        console.error("[v0] Error inserting packages:", insertError)
-        return NextResponse.json({ error: "Failed to update packages" }, { status: 500 })
+        const { error: insertError } = await adminSupabase.from("packages").insert(packagesData)
+
+        if (insertError) {
+          console.error("[v0] Error inserting packages:", insertError)
+          return NextResponse.json({ error: `Failed to update packages: ${insertError.message}` }, { status: 500 })
+        }
+
+        console.log("[v0] Packages inserted successfully")
       }
+    } else {
+      console.log("[v0] No packages provided in update request")
     }
 
     const updatedBooking = updateResult[0]
@@ -289,7 +302,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     const supabase = await createClient()
     const adminSupabase = createAdminClient()
 
-    // Check if booking exists
     const { data: existingBooking, error: fetchError } = await supabase
       .from("bookings")
       .select("id")
@@ -301,7 +313,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ error: `Booking with ID ${params.id} not found` }, { status: 404 })
     }
 
-    // Validate status field only
     if (!formData.status) {
       return NextResponse.json({ error: "Missing required field: status" }, { status: 400 })
     }
@@ -311,7 +322,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       return NextResponse.json({ error: "Invalid status" }, { status: 400 })
     }
 
-    // Update only the status field
     const { data: updateResult, error: updateError } = await adminSupabase
       .from("bookings")
       .update({

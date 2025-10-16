@@ -181,7 +181,9 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
     setIsSubmitting(true)
 
     try {
-      console.log("[v0] Updating booking:", params.id, formData)
+      console.log("[v0] Submitting booking update")
+      console.log("[v0] Packages count:", formData.packages.length)
+      console.log("[v0] Packages data:", formData.packages)
 
       const response = await fetch(`/api/bookings/${params.id}`, {
         method: "PUT",

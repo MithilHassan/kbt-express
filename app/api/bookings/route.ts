@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Generate the booking number with KBT prefix and zero padding
-    const bookingNumber = `101${nextValue.toString().padStart(6, "0")}`
+    const bookingNumber = `KBT${nextValue.toString().padStart(6, "0")}`
     console.log("[v0] Generated booking number:", bookingNumber)
 
     const { data: booking, error } = await supabase
