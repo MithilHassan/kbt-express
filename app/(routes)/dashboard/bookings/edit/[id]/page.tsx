@@ -27,6 +27,8 @@ interface EditBookingFormData {
   shipperCountry: string
   shipperPhone: string
   shipperEmail: string
+  shipperRegistrationType: string
+  shipperRegistrationNumber: string
 
   // Consignee Information
   consigneeCompanyName: string
@@ -38,6 +40,8 @@ interface EditBookingFormData {
   consigneeCountry: string
   consigneePhone: string
   consigneeEmail: string
+  consigneeRegistrationType: string
+  consigneeRegistrationNumber: string
 
   // Shipment Information
   paymentMode: string
@@ -76,6 +80,8 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
     shipperCountry: "",
     shipperPhone: "",
     shipperEmail: "",
+    shipperRegistrationType: "None",
+    shipperRegistrationNumber: "",
     consigneeCompanyName: "",
     consigneeContactPerson: "",
     consigneeAddressLine: "",
@@ -85,6 +91,8 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
     consigneeCountry: "",
     consigneePhone: "",
     consigneeEmail: "",
+    consigneeRegistrationType: "None",
+    consigneeRegistrationNumber: "",
     paymentMode: "",
     amount: "",
     referenceNumber: "",
@@ -125,6 +133,8 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
           shipperCountry: booking.shipper_country || "",
           shipperPhone: booking.shipper_phone || "",
           shipperEmail: booking.shipper_email || "",
+          shipperRegistrationType: booking.shipper_registration_type || "None",
+          shipperRegistrationNumber: booking.shipper_registration_number || "",
           consigneeCompanyName: booking.consignee_company_name || "",
           consigneeContactPerson: booking.consignee_contact_person || "",
           consigneeAddressLine: booking.consignee_address_line || "",
@@ -134,6 +144,8 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
           consigneeCountry: booking.consignee_country || "",
           consigneePhone: booking.consignee_phone || "",
           consigneeEmail: booking.consignee_email || "",
+          consigneeRegistrationType: booking.consignee_registration_type || "None",
+          consigneeRegistrationNumber: booking.consignee_registration_number || "",
           paymentMode: booking.payment_mode || "",
           amount: booking.amount?.toString() || "",
           referenceNumber: booking.reference_number || "",
@@ -387,6 +399,34 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
                     required
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="shipperRegistrationType">Registration Type</Label>
+                  <Select
+                    value={formData.shipperRegistrationType}
+                    onValueChange={(value) => handleInputChange("shipperRegistrationType", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select registration type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="None">None</SelectItem>
+                      <SelectItem value="BIN">BIN</SelectItem>
+                      <SelectItem value="EORI">EORI</SelectItem>
+                      <SelectItem value="IOSS">IOSS</SelectItem>
+                      <SelectItem value="GST">GST</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="shipperRegistrationNumber">Registration Number</Label>
+                  <Input
+                    id="shipperRegistrationNumber"
+                    value={formData.shipperRegistrationNumber}
+                    onChange={(e) => handleInputChange("shipperRegistrationNumber", e.target.value)}
+                    placeholder="Enter registration number"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -494,6 +534,34 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
                     required
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="consigneeRegistrationType">Registration Type</Label>
+                  <Select
+                    value={formData.consigneeRegistrationType}
+                    onValueChange={(value) => handleInputChange("consigneeRegistrationType", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select registration type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="None">None</SelectItem>
+                      <SelectItem value="BIN">BIN</SelectItem>
+                      <SelectItem value="EORI">EORI</SelectItem>
+                      <SelectItem value="IOSS">IOSS</SelectItem>
+                      <SelectItem value="GST">GST</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="consigneeRegistrationNumber">Registration Number</Label>
+                  <Input
+                    id="consigneeRegistrationNumber"
+                    value={formData.consigneeRegistrationNumber}
+                    onChange={(e) => handleInputChange("consigneeRegistrationNumber", e.target.value)}
+                    placeholder="Enter registration number"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -571,7 +639,7 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
                       <SelectValue placeholder="Select item type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SPX">SPX (Express)</SelectItem>
+                      <SelectItem value="SPX">Non Documents</SelectItem>
                       <SelectItem value="Docs">Documents</SelectItem>
                     </SelectContent>
                   </Select>

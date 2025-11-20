@@ -46,12 +46,16 @@ interface Booking {
   shipper_state: string
   shipper_phone: string
   shipper_email: string
+  shipper_registration_type?: string
+  shipper_registration_number?: string
   consignee_contact_person: string
   consignee_address_line: string
   consignee_zip: string
   consignee_state: string
   consignee_phone: string
   consignee_email: string
+  consignee_registration_type?: string
+  consignee_registration_number?: string
   reference_number?: string
   product_value?: number
   billing_weight_kg?: number
@@ -259,7 +263,7 @@ export default function BookingsPage() {
   const getStatusBadge = (status: string) => {
     const config = getStatusConfig(status)
     return (
-      <Badge className={config.color}>
+      <Badge className={config.color} className="text-xs">
         {config.label}
       </Badge>
     )
@@ -290,6 +294,8 @@ export default function BookingsPage() {
       shipperCountry: countries.find((c) => c.code === booking.shipper_country)?.name || booking.shipper_country,
       shipperPhone: booking.shipper_phone,
       shipperEmail: booking.shipper_email,
+      shipperRegistrationType: booking.shipper_registration_type,
+      shipperRegistrationNumber: booking.shipper_registration_number,
       consigneeCompanyName: booking.consignee_company_name,
       consigneeContactPerson: booking.consignee_contact_person,
       consigneeAddressLine: booking.consignee_address_line,
@@ -299,6 +305,8 @@ export default function BookingsPage() {
       consigneeCountry: countries.find((c) => c.code === booking.consignee_country)?.name || booking.consignee_country,
       consigneePhone: booking.consignee_phone,
       consigneeEmail: booking.consignee_email,
+      consigneeRegistrationType: booking.consignee_registration_type,
+      consigneeRegistrationNumber: booking.consignee_registration_number,
       paymentMode: booking.payment_mode,
       amount: booking.amount?.toString() || "",
       referenceNumber: booking.reference_number || "",
@@ -335,6 +343,8 @@ export default function BookingsPage() {
         "Shipper Country": countries.find((c) => c.code === booking.shipper_country)?.name || booking.shipper_country,
         "Shipper Phone": booking.shipper_phone,
         "Shipper Email": booking.shipper_email,
+        "Shipper Registration Type": booking.shipper_registration_type || "",
+        "Shipper Registration Number": booking.shipper_registration_number || "",
         "Consignee Company": booking.consignee_company_name,
         "Consignee Contact": booking.consignee_contact_person,
         "Consignee City": booking.consignee_city,
@@ -342,6 +352,8 @@ export default function BookingsPage() {
           countries.find((c) => c.code === booking.consignee_country)?.name || booking.consignee_country,
         "Consignee Phone": booking.consignee_phone,
         "Consignee Email": booking.consignee_email,
+        "Consignee Registration Type": booking.consignee_registration_type || "",
+        "Consignee Registration Number": booking.consignee_registration_number || "",
         "Payment Mode": booking.payment_mode,
         Amount: booking.amount || "",
         "Reference Number": booking.reference_number || "",
@@ -374,12 +386,16 @@ export default function BookingsPage() {
         { wch: 15 }, // Shipper Country
         { wch: 15 }, // Shipper Phone
         { wch: 25 }, // Shipper Email
+        { wch: 15 }, // Shipper Registration Type
+        { wch: 20 }, // Shipper Registration Number
         { wch: 20 }, // Consignee Company
         { wch: 18 }, // Consignee Contact
         { wch: 15 }, // Consignee City
         { wch: 15 }, // Consignee Country
         { wch: 15 }, // Consignee Phone
         { wch: 25 }, // Consignee Email
+        { wch: 15 }, // Consignee Registration Type
+        { wch: 20 }, // Consignee Registration Number
         { wch: 12 }, // Payment Mode
         { wch: 10 }, // Amount
         { wch: 15 }, // Reference Number
@@ -424,7 +440,7 @@ export default function BookingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="sm:flex items-center justify-between space-y-5">
+      <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-foreground">All Bookings</h1>
           <p className="text-muted-foreground">Manage and track all your shipment bookings</p>
@@ -440,7 +456,7 @@ export default function BookingsPage() {
             Export Excel ({filteredBookings.length})
           </Button>
           <Button asChild className="bg-primary hover:bg-primary/90">
-            <a href="/booking">
+            <a href="/">
               <Package className="h-4 w-4 mr-2" />
               New Booking
             </a>
@@ -474,7 +490,7 @@ export default function BookingsPage() {
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem  value="all">All Status</SelectItem>
+                <SelectItem value="all">All Status</SelectItem>
                 {STATUS_OPTIONS.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -727,6 +743,19 @@ export default function BookingsPage() {
                                         <div>
                                           <strong>Email:</strong> {selectedBooking.shipper_email}
                                         </div>
+                                        {/* added shipper registration fields */}
+                                        {selectedBooking.shipper_registration_type && (
+                                          <div>
+                                            <strong>Registration Type:</strong>{" "}
+                                            {selectedBooking.shipper_registration_type}
+                                          </div>
+                                        )}
+                                        {selectedBooking.shipper_registration_number && (
+                                          <div>
+                                            <strong>Registration Number:</strong>{" "}
+                                            {selectedBooking.shipper_registration_number}
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
 
@@ -757,6 +786,19 @@ export default function BookingsPage() {
                                         <div>
                                           <strong>Email:</strong> {selectedBooking.consignee_email}
                                         </div>
+                                        {/* added consignee registration fields */}
+                                        {selectedBooking.consignee_registration_type && (
+                                          <div>
+                                            <strong>Registration Type:</strong>{" "}
+                                            {selectedBooking.consignee_registration_type}
+                                          </div>
+                                        )}
+                                        {selectedBooking.consignee_registration_number && (
+                                          <div>
+                                            <strong>Registration Number:</strong>{" "}
+                                            {selectedBooking.consignee_registration_number}
+                                          </div>
+                                        )}
                                       </div>
                                     </div>
 

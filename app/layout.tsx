@@ -8,6 +8,9 @@ import { Footer } from '@/components/Footer'
 export const metadata: Metadata = {
   title: 'KBT EXPRESS',
   description: 'Global Logistic Solution',
+  icons: {
+    icon: '/favicon.png',
+  },
 }
 
 export default function RootLayout({

@@ -26,6 +26,8 @@ interface BookingFormData {
   shipperCountry: string
   shipperPhone: string
   shipperEmail: string
+  shipperRegistrationType: string
+  shipperRegistrationNumber: string
 
   // Consignee Information
   consigneeCompanyName: string
@@ -37,6 +39,8 @@ interface BookingFormData {
   consigneeCountry: string
   consigneePhone: string
   consigneeEmail: string
+  consigneeRegistrationType: string
+  consigneeRegistrationNumber: string
 
   // Shipment Information
   paymentMode: string
@@ -75,6 +79,8 @@ export default function BookingForm() {
     shipperCountry: "",
     shipperPhone: "",
     shipperEmail: "",
+    shipperRegistrationType: "None",
+    shipperRegistrationNumber: "",
     consigneeCompanyName: "",
     consigneeContactPerson: "",
     consigneeAddressLine: "",
@@ -84,6 +90,8 @@ export default function BookingForm() {
     consigneeCountry: "",
     consigneePhone: "",
     consigneeEmail: "",
+    consigneeRegistrationType: "None",
+    consigneeRegistrationNumber: "",
     paymentMode: "",
     amount: "",
     referenceNumber: "",
@@ -180,6 +188,9 @@ export default function BookingForm() {
         shipperCountry: countries.find((c) => c.code === formData.shipperCountry)?.name || formData.shipperCountry,
         shipperPhone: formData.shipperPhone,
         shipperEmail: formData.shipperEmail,
+        shipperRegistrationType:
+          formData.shipperRegistrationType !== "None" ? formData.shipperRegistrationType : undefined,
+        shipperRegistrationNumber: formData.shipperRegistrationNumber,
 
         consigneeCompanyName: formData.consigneeCompanyName,
         consigneeContactPerson: formData.consigneeContactPerson,
@@ -191,6 +202,9 @@ export default function BookingForm() {
           countries.find((c) => c.code === formData.consigneeCountry)?.name || formData.consigneeCountry,
         consigneePhone: formData.consigneePhone,
         consigneeEmail: formData.consigneeEmail,
+        consigneeRegistrationType:
+          formData.consigneeRegistrationType !== "None" ? formData.consigneeRegistrationType : undefined,
+        consigneeRegistrationNumber: formData.consigneeRegistrationNumber,
 
         paymentMode: formData.paymentMode,
         amount: formData.amount,
@@ -250,6 +264,8 @@ export default function BookingForm() {
       shipperCountry: "",
       shipperPhone: "",
       shipperEmail: "",
+      shipperRegistrationType: "None",
+      shipperRegistrationNumber: "",
       consigneeCompanyName: "",
       consigneeContactPerson: "",
       consigneeAddressLine: "",
@@ -259,6 +275,8 @@ export default function BookingForm() {
       consigneeCountry: "",
       consigneePhone: "",
       consigneeEmail: "",
+      consigneeRegistrationType: "None",
+      consigneeRegistrationNumber: "",
       paymentMode: "",
       amount: "",
       referenceNumber: "",
@@ -298,7 +316,7 @@ export default function BookingForm() {
             <CardContent className="p-8 text-center space-y-6">
               <div className="space-y-2">
                 <h3 className="text-lg font-semibold text-slate-900">Booking Number</h3>
-                <Badge variant="outline" className="text-lg px-4 py-2 bg-blue-50 text-[#0253A3] border-blue-200">
+                <Badge variant="outline" className="text-lg px-4 py-2 bg-blue-50 text-blue-800 border-blue-200">
                   {bookingData.bookingNumber}
                 </Badge>
               </div>
@@ -311,7 +329,7 @@ export default function BookingForm() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button onClick={handleDownloadPDF} className="bg-[#0253A3] hover:[#0253A3] text-white" size="lg">
+                <Button onClick={handleDownloadPDF} className="bg-blue-600 hover:bg-blue-700 text-white" size="lg">
                   <Download className="h-4 w-4 mr-2" />
                   Download Invoice PDF
                 </Button>
@@ -337,18 +355,35 @@ export default function BookingForm() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-4 md:p-8">
-      <div className="mx-auto container">
+      <div className="mx-auto max-w-4xl">
         {/* Header */}
-        <div className="mb-8 text-left">
-          <h2 className="text-2xl sm:text-3xl font-bold">ONLINE <span className="text-[#0253A3]">BOOKING</span></h2>
-          <p className="sm:font-medium text-orange-500">Complete the form below to book your shipment. All fields marked with * are required.</p>
+        <div className="mb-8 text-center">
+          <div className="mb-4 flex items-center justify-center gap-2">
+            <Truck className="h-8 w-8 text-blue-600" />
+            <h1 className="text-3xl font-bold text-slate-900">Courier Booking</h1>
+          </div>
+          <p className="text-slate-600 text-balance">
+            Complete the form below to book your shipment. All fields marked with * are required.
+          </p>
+          <div className="mt-4">
+            <Button
+              onClick={() => window.open("/track", "_blank")}
+              variant="outline"
+              size="sm"
+              className="border-blue-200 text-blue-700 hover:bg-blue-50"
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Track Existing Shipment
+            </Button>
+          </div>
         </div>
-        <form onSubmit={handleSubmit} className="grid xl:grid-cols-2 gap-10">
+
+        <form onSubmit={handleSubmit} className="space-y-8">
           {/* Shipper Information */}
           <Card className="border-slate-200 shadow-sm">
             <CardHeader className="bg-slate-50 border-b border-slate-200">
               <CardTitle className="flex items-center gap-2 text-slate-900">
-                <Building className="h-5 w-5 text-[#0253A3]" />
+                <Building className="h-5 w-5 text-blue-600" />
                 Shipper Information
               </CardTitle>
               <CardDescription>Details of the sender</CardDescription>
@@ -455,6 +490,35 @@ export default function BookingForm() {
                     className="border-slate-300"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="shipperRegistrationType">Registration Type</Label>
+                  <Select
+                    value={formData.shipperRegistrationType}
+                    onValueChange={(value) => handleInputChange("shipperRegistrationType", value)}
+                  >
+                    <SelectTrigger className="border-slate-300">
+                      <SelectValue placeholder="Select registration type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="None">None</SelectItem>
+                      <SelectItem value="BIN">BIN</SelectItem>
+                      <SelectItem value="EORI">EORI</SelectItem>
+                      <SelectItem value="IOSS">IOSS</SelectItem>
+                      <SelectItem value="GST">GST</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="shipperRegistrationNumber">Registration Number</Label>
+                  <Input
+                    id="shipperRegistrationNumber"
+                    value={formData.shipperRegistrationNumber}
+                    onChange={(e) => handleInputChange("shipperRegistrationNumber", e.target.value)}
+                    placeholder="Enter registration number"
+                    className="border-slate-300"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -463,7 +527,7 @@ export default function BookingForm() {
           <Card className="border-slate-200 shadow-sm">
             <CardHeader className="bg-slate-50 border-b border-slate-200">
               <CardTitle className="flex items-center gap-2 text-slate-900">
-                <User className="h-5 w-5 text-[#0253A3]" />
+                <User className="h-5 w-5 text-blue-600" />
                 Consignee Information
               </CardTitle>
               <CardDescription>Details of the recipient</CardDescription>
@@ -570,6 +634,35 @@ export default function BookingForm() {
                     className="border-slate-300"
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="consigneeRegistrationType">Registration Type</Label>
+                  <Select
+                    value={formData.consigneeRegistrationType}
+                    onValueChange={(value) => handleInputChange("consigneeRegistrationType", value)}
+                  >
+                    <SelectTrigger className="border-slate-300">
+                      <SelectValue placeholder="Select registration type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="None">None</SelectItem>
+                      <SelectItem value="BIN">BIN</SelectItem>
+                      <SelectItem value="EORI">EORI</SelectItem>
+                      <SelectItem value="IOSS">IOSS</SelectItem>
+                      <SelectItem value="GST">GST</SelectItem>
+                      <SelectItem value="Other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="consigneeRegistrationNumber">Registration Number</Label>
+                  <Input
+                    id="consigneeRegistrationNumber"
+                    value={formData.consigneeRegistrationNumber}
+                    onChange={(e) => handleInputChange("consigneeRegistrationNumber", e.target.value)}
+                    placeholder="Enter registration number"
+                    className="border-slate-300"
+                  />
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -578,7 +671,7 @@ export default function BookingForm() {
           <Card className="border-slate-200 shadow-sm">
             <CardHeader className="bg-slate-50 border-b border-slate-200">
               <CardTitle className="flex items-center gap-2 text-slate-900">
-                <Package className="h-5 w-5 text-[#0253A3]" />
+                <Package className="h-5 w-5 text-blue-600" />
                 Shipment Information
               </CardTitle>
               <CardDescription>Package details and payment information</CardDescription>
@@ -651,8 +744,8 @@ export default function BookingForm() {
                       <SelectValue placeholder="Select item type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Documents">Documents</SelectItem>
-                      <SelectItem value="Non Documents">Non Documents</SelectItem>
+                      <SelectItem value="SPX">Non Documents</SelectItem>
+                      <SelectItem value="Docs">Documents</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -735,12 +828,12 @@ export default function BookingForm() {
           <MultipleDimensionsForm dimensions={dimensions} onDimensionsChange={setDimensions} />
 
           {/* Submit Button */}
-          <div className="">
+          <div className="flex justify-center">
             <Button
               type="submit"
               size="lg"
               disabled={isSubmitting}
-              className="bg-[#0253A3] hover:bg-[#0253A3] text-white px-8 py-3 text-lg font-semibold"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg font-semibold"
             >
               {isSubmitting ? "Processing..." : "Submit Booking"}
             </Button>

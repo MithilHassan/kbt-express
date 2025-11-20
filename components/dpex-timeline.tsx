@@ -95,7 +95,7 @@ export function DPEXTimeline({ bookingData, getCountryName, onNewSearch }: DPEXT
 
       {/* Info Grid */}
       <Card className="border-slate-200">
-        <CardContent className="p-6">
+        <CardContent className="px-6">
           <div className="grid grid-cols-2 gap-6">
             <div>
               <p className="text-sm text-slate-500 mb-1">Country:</p>
@@ -155,7 +155,7 @@ export function DPEXTimeline({ bookingData, getCountryName, onNewSearch }: DPEXT
                   {/* Content card - alternating sides */}
                   <div className={`flex ${isLeft ? "justify-start pr-[52%] text-right" : "justify-end pl-[52%]"}`}>
                     <Card className="border-slate-200 shadow-sm w-full">
-                      <CardContent className="p-4">
+                      <CardContent className="px-4">
                         <h3 className="font-bold text-slate-900 mb-1">{config.label}</h3>
                         <p className="text-sm text-slate-600 mb-2">
                           {destination.includes(config.label)

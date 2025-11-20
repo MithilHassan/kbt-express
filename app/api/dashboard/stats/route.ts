@@ -11,7 +11,7 @@ export async function GET() {
       .select("*", { count: "exact", head: true })
 
     if (totalError) {
-      console.error(" Error fetching total bookings:", totalError)
+      console.error("[v0] Error fetching total bookings:", totalError)
     }
 
     // Get today's bookings count
@@ -27,27 +27,27 @@ export async function GET() {
       .lt("created_at", tomorrow.toISOString())
 
     if (todayError) {
-      console.error(" Error fetching today's bookings:", todayError)
+      console.error("[v0] Error fetching today's bookings:", todayError)
     }
 
     // Get pending bookings count
     const { count: pendingBookings, error: pendingError } = await supabase
       .from("bookings")
       .select("*", { count: "exact", head: true })
-      .eq("status", "Pending")
+      .eq("status", "pending")
 
     if (pendingError) {
-      console.error(" Error fetching pending bookings:", pendingError)
+      console.error("[v0] Error fetching pending bookings:", pendingError)
     }
 
     // Get completed bookings count
     const { count: completedBookings, error: completedError } = await supabase
       .from("bookings")
       .select("*", { count: "exact", head: true })
-      .eq("status", "Delivered")
+      .eq("status", "delivered")
 
     if (completedError) {
-      console.error(" Error fetching completed bookings:", completedError)
+      console.error("[v0] Error fetching completed bookings:", completedError)
     }
 
     return NextResponse.json({
@@ -58,7 +58,7 @@ export async function GET() {
       completedBookings: completedBookings || 0,
     })
   } catch (error) {
-    console.error(" API error:", error)
+    console.error("[v0] API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

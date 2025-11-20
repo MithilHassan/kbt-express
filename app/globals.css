@@ -8,7 +8,7 @@
   --foreground: #1f2937;
   --card: #f1f5f9;
   --card-foreground: #374151;
-  --popover: #0253A3;
+  --popover: #8b5cf6;
   --popover-foreground: #ffffff;
   --primary: #1f2937;
   --primary-foreground: #ffffff;
@@ -16,7 +16,7 @@
   --secondary-foreground: #ffffff;
   --muted: #f1f5f9;
   --muted-foreground: #6b7280;
-  --accent: #3b82f6;
+  --accent: #8b5cf6;
   --accent-foreground: #ffffff;
   --destructive: #ea580c;
   --destructive-foreground: #ffffff;
@@ -33,10 +33,10 @@
   --sidebar-foreground: #374151;
   --sidebar-primary: #1f2937;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #0253A3;
+  --sidebar-accent: #8b5cf6;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #e5e7eb;
-  --sidebar-ring: #0253A3;
+  --sidebar-ring: rgba(139, 92, 246, 0.5);
 }
 
 .dark {
@@ -75,8 +75,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* optional: --font-sans, --font-serif, --font-mono if they are applied in the layout.tsx */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -123,4 +122,3 @@
     @apply bg-background text-foreground;
   }
 }
-

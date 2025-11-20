@@ -1,15 +1,34 @@
-import Image from "next/image";
+import { useEffect, useRef } from "react";
 
-export const HeroBackground = () => (
-  <div className="absolute inset-0">
-    <Image
-      src="/hero-bg.jpg"
-      alt="Background"
-      fill
-      className="object-cover w-full h-full opacity-80"
-    />
-  </div>
-);
+export const HeroBackground = () => {
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.5; // 👈 Slow down video
+    }
+  }, []);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src="/hero-video.mp4" type="video/mp4" />
+      </video>
+
+      {/* Optional overlay */}
+      <div className="absolute inset-0 bg-white/60" />
+    </div>
+  );
+};
+
+
 
 
 import Link from "next/link";

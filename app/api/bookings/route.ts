@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { createClient } from "@/lib/supabase/server"
+import { createClient, createAdminClient } from "@/lib/supabase/server"
 import { countries } from "@/lib/countries"
 
 export async function GET() {
@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.json()
     console.log("[v0] Submitting form data:", formData)
+
     const supabase = await createClient()
 
     const { packages, ...bookingData } = formData
@@ -107,36 +108,15 @@ export async function POST(request: NextRequest) {
       totalPieces += Number.parseInt(pkg.pieces) || 0
     })
 
-    // First, get and increment the counter
-    const { data: counterData, error: counterError } = await supabase
-      .from("booking_sequence")
-      .select("current_number")
-      .eq("id", 1)
-      .single()
+    const adminSupabase = createAdminClient()
+    const { data: bookingNumberResult, error: rpcError } = await adminSupabase.rpc("generate_booking_number")
 
-    if (counterError) {
-      console.error("[v0] Counter fetch error:", counterError)
+    if (rpcError) {
+      console.error("[v0] RPC error generating booking number:", rpcError)
       return NextResponse.json({ error: "Failed to generate booking number" }, { status: 500 })
     }
 
-    const nextValue = (counterData?.current_number || 0) + 1
-
-    // Update the counter
-    const { error: updateError } = await supabase
-      .from("booking_sequence")
-      .update({
-        current_number: nextValue,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", 1)
-
-    if (updateError) {
-      console.error("[v0] Counter update error:", updateError)
-      return NextResponse.json({ error: "Failed to update booking counter" }, { status: 500 })
-    }
-
-    // Generate the booking number with KBT prefix and zero padding
-    const bookingNumber = `KBT${nextValue.toString().padStart(6, "0")}`
+    const bookingNumber = bookingNumberResult as string
     console.log("[v0] Generated booking number:", bookingNumber)
 
     const { data: booking, error } = await supabase
@@ -154,6 +134,11 @@ export async function POST(request: NextRequest) {
         shipper_country: bookingData.shipperCountry,
         shipper_phone: bookingData.shipperPhone,
         shipper_email: bookingData.shipperEmail,
+        shipper_registration_type:
+          bookingData.shipperRegistrationType && bookingData.shipperRegistrationType !== "None"
+            ? bookingData.shipperRegistrationType
+            : null,
+        shipper_registration_number: bookingData.shipperRegistrationNumber || null,
 
         // Consignee Information
         consignee_company_name: bookingData.consigneeCompanyName,
@@ -165,6 +150,11 @@ export async function POST(request: NextRequest) {
         consignee_country: bookingData.consigneeCountry,
         consignee_phone: bookingData.consigneePhone,
         consignee_email: bookingData.consigneeEmail,
+        consignee_registration_type:
+          bookingData.consigneeRegistrationType && bookingData.consigneeRegistrationType !== "None"
+            ? bookingData.consigneeRegistrationType
+            : null,
+        consignee_registration_number: bookingData.consigneeRegistrationNumber || null,
 
         // Shipment Information
         payment_mode: bookingData.paymentMode,
@@ -184,15 +174,22 @@ export async function POST(request: NextRequest) {
         height_cm: packages[0]?.heightCm ? Number.parseFloat(packages[0].heightCm) : null,
         dimensional_weight: totalDimensionalWeight,
 
-        status: "Pending", // Set default status to 'Pending'
+        status: "Pending",
       })
       .select()
       .single()
 
     if (error) {
-      console.error("[v0] Database error:", error)
+      console.error("[v0] Database error details:", {
+        message: error.message,
+        code: error.code,
+        status: error.status,
+        details: error.details,
+      })
       return NextResponse.json({ error: "Failed to create booking" }, { status: 500 })
     }
+
+    console.log("[v0] Booking inserted successfully with ID:", booking.id)
 
     const packageInserts = packages.map((pkg: any) => ({
       booking_id: booking.id,
@@ -211,7 +208,6 @@ export async function POST(request: NextRequest) {
 
     if (packagesError) {
       console.error("[v0] Packages insert error:", packagesError)
-      // Don't fail the entire booking if packages insert fails
       console.warn("[v0] Continuing without package details")
     }
 
@@ -224,7 +220,6 @@ export async function POST(request: NextRequest) {
 
     if (historyError) {
       console.error("[v0] Status history insert error:", historyError)
-      // Don't fail the booking if history insert fails
     }
 
     console.log("[v0] Booking created successfully:", booking)

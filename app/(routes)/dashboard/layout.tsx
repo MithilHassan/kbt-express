@@ -4,16 +4,16 @@ import type React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { LayoutDashboard, Package, Plus, Users, BarChart3, Settings, Menu, Truck } from "lucide-react"
+import { LayoutDashboard, Package, Plus, Users, BarChart3, Settings, Menu, Truck, LogOut } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "All Bookings", href: "/dashboard/bookings", icon: Package },
-  { name: "New Booking", href: "/booking", icon: Plus },
+  { name: "New Booking", href: "/", icon: Plus },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
   { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -26,9 +26,21 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await fetch("/api/admin/logout", { method: "POST" })
+    router.push("/dashboard/login")
+  }
 
   const Sidebar = ({ className }: { className?: string }) => (
     <div className={cn("flex h-full flex-col bg-sidebar", className)}>
+      {/* Logo */}
+      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
+        <Truck className="h-8 w-8 text-sidebar-primary" />
+        <span className="text-xl font-bold text-sidebar-foreground">KBT Express</span>
+      </div>
+
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
         {navigation.map((item) => {
@@ -51,6 +63,13 @@ export default function DashboardLayout({
           )
         })}
       </nav>
+
+      <div className="border-t border-sidebar-border p-4">
+        <Button variant="outline" className="w-full justify-start gap-2 text-sm bg-transparent" onClick={handleLogout}>
+          <LogOut className="h-4 w-4" />
+          Logout
+        </Button>
+      </div>
     </div>
   )
 
