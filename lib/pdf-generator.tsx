@@ -551,7 +551,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
               <div style="padding: 3px;">
                 <div class="inline-fields">
                   <div class="field-group" style= "display: flex; align-items: center; border-bottom: 0; border-right: 0;">
-                    <div class="field-label">Number of Package :</div>
+                    <div class="field-label">Number of Package:</div>
                     <div class="field-value" style="margin-left: 5px;">${bookingData.pieces}</div>
                   </div>
                   <div class="field-group" style="display: flex; align-items: center; border-bottom: 0;">

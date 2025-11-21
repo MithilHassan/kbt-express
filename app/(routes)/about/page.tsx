@@ -9,7 +9,7 @@ const About = () => (
         COMPANY <span className="text-[#0253A3]">OVERVIEW</span>
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
         {/* Text Content */}
         <div className="space-y-6 text-lg text-justify leading-relaxed">
           <p>
@@ -35,7 +35,7 @@ const About = () => (
           <Image
             src={gallery}
             alt="KBT Express"
-            className="w-full h-full object-cover rounded-lg shadow-md"
+            className="w-full object-cover rounded-lg shadow-md"
             placeholder="blur"
             priority
           />

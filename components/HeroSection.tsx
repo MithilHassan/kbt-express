@@ -1,29 +1,43 @@
-import { useEffect, useRef } from "react";
+import Image from "next/image";
+
+const images = [
+  "/hero-bg1.png",
+  "/hero-bg2.png",
+  "/hero-bg3.png",
+  "/hero-bg4.png",
+  "/hero-bg5.png",
+  "/hero-bg6.png",
+  "/hero-bg7.png",
+];
 
 export const HeroBackground = () => {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 0.5; // 👈 Slow down video
-    }
-  }, []);
+  const total = images.length;
+  const duration = total * 5; // 5 sec per image
 
   return (
     <div className="absolute inset-0 overflow-hidden">
-      <video
-        ref={videoRef}
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-      >
-        <source src="/hero-video.mp4" type="video/mp4" />
-      </video>
 
-      {/* Optional overlay */}
-      <div className="absolute inset-0 bg-white/60" />
+      {/* SLIDES */}
+      {images.map((src, index) => (
+        <div
+          key={index}
+          className="fade-slide"
+          style={{
+            animationDelay: `${index * 5}s`,
+            ["--duration" as any]: `${duration}s`,
+          }}
+        >
+          <Image
+            src={src}
+            alt={`slide-${index}`}
+            fill
+            className="object-cover"
+          />
+        </div>
+      ))}
+
+      {/* LIGHT OVERLAY */}
+      <div className="absolute inset-0 bg-white/50 z-[2]" />
     </div>
   );
 };
@@ -57,7 +71,7 @@ export function TrackShipmentBar() {
   const [bookingId, setBookingId] = useState("");
 
   return ( // ✅ You need to return the JSX here
-    <div className="bg-[#0253A3] py-6">
+    <div className="bg-[#0253A3] py-6 z-20 absolute w-full bottom-0">
       <div className="container mx-auto flex flex-row justify-between items-center px-4 gap-6 sm:gap-0">
         <div className="text-center sm:text-left hidden sm:block">
           <p className="text-white font-semibold text-lg">Quick Connect</p>
@@ -97,7 +111,7 @@ export function TrackShipmentBar() {
 
 export const HeroSection = () => (
   <section>
-    <div className="relative bg-gray-100">
+    <div className="relative bg-gray-100 h-[85vh]">
       <HeroBackground />
       <HeroContent />
     </div>

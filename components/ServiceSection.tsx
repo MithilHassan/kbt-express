@@ -23,7 +23,7 @@ const ServiceCard = ({ src, alt, title, description, animation = "fade-up" }: Se
         className="rounded-md"
       />
       <h3 className="mt-4 font-bold text-lg">{title}</h3>
-      <p className="text-sm text-gray-600 mt-2">{description}</p>
+      <p className="text-sm text-gray-600 mt-2 text-justify">{description}</p>
       <a href="/services" className="text-sm mt-3 inline-block underline">Read More</a>
     </div>
   </div>
@@ -45,7 +45,7 @@ export const Services = () => (
         </h2>
         <p className="text-orange-400 font-medium mb-5">YOUR TRUSTED LOGISTIC PARTNER</p>
       </div>
-      <div className="grid md:grid-cols-3 gap-8 mt-10">
+      <div className="grid lg:grid-cols-3 gap-8 mt-10">
         <ServiceCard
           src="/aircargo.jpg"
           alt="Air Cargo"

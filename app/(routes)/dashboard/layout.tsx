@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils"
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "All Bookings", href: "/dashboard/bookings", icon: Package },
-  { name: "New Booking", href: "/", icon: Plus },
+  { name: "New Booking", href: "/booking", icon: Plus },
   { name: "Customers", href: "/dashboard/customers", icon: Users },
   { name: "Analytics", href: "/dashboard/analytics", icon: BarChart3 },
   { name: "Settings", href: "/dashboard/settings", icon: Settings },
@@ -35,12 +35,6 @@ export default function DashboardLayout({
 
   const Sidebar = ({ className }: { className?: string }) => (
     <div className={cn("flex h-full flex-col bg-sidebar", className)}>
-      {/* Logo */}
-      <div className="flex h-16 items-center gap-2 border-b border-sidebar-border px-6">
-        <Truck className="h-8 w-8 text-sidebar-primary" />
-        <span className="text-xl font-bold text-sidebar-foreground">KBT Express</span>
-      </div>
-
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-4">
         {navigation.map((item) => {

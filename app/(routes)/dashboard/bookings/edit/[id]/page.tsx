@@ -639,8 +639,8 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
                       <SelectValue placeholder="Select item type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SPX">Non Documents</SelectItem>
-                      <SelectItem value="Docs">Documents</SelectItem>
+                      <SelectItem value="Non Documents">Non Documents</SelectItem>
+                      <SelectItem value="Documents">Documents</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

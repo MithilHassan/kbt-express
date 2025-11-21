@@ -334,7 +334,7 @@ export default function BookingForm() {
                   Download Invoice PDF
                 </Button>
                 <Button
-                  onClick={() => window.open("/track", "_blank")}
+                  onClick={() => window.open(`/${bookingData.bookingNumber}`, "_blank")}
                   variant="outline"
                   size="lg"
                   className="border-blue-200 text-blue-700 hover:bg-blue-50"
@@ -365,17 +365,6 @@ export default function BookingForm() {
           <p className="text-slate-600 text-balance">
             Complete the form below to book your shipment. All fields marked with * are required.
           </p>
-          <div className="mt-4">
-            <Button
-              onClick={() => window.open("/track", "_blank")}
-              variant="outline"
-              size="sm"
-              className="border-blue-200 text-blue-700 hover:bg-blue-50"
-            >
-              <Search className="h-4 w-4 mr-2" />
-              Track Existing Shipment
-            </Button>
-          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
@@ -744,8 +733,8 @@ export default function BookingForm() {
                       <SelectValue placeholder="Select item type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="SPX">Non Documents</SelectItem>
-                      <SelectItem value="Docs">Documents</SelectItem>
+                      <SelectItem value="Non Documents">Non Documents</SelectItem>
+                      <SelectItem value="Documents">Documents</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

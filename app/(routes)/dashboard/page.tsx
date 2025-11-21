@@ -29,7 +29,7 @@ export default function DashboardPage() {
           setStats(data)
         }
       } catch (error) {
-        console.error("[v0] Error fetching dashboard stats:", error)
+        console.error("Error fetching dashboard stats:", error)
       } finally {
         setIsLoading(false)
       }

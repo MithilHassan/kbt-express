@@ -122,3 +122,18 @@
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes fadeSlide {
+  0% { opacity: 0; }
+  5% { opacity: 1; }
+  25% { opacity: 1; }
+  30% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+.fade-slide {
+  position: absolute;
+  inset: 0;
+  animation: fadeSlide var(--duration) linear infinite;
+  opacity: 0;
+}

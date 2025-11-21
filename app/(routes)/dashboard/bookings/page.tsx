@@ -440,7 +440,7 @@ export default function BookingsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="sm:flex items-center justify-between space-y-5">
         <div>
           <h1 className="text-3xl font-bold text-foreground">All Bookings</h1>
           <p className="text-muted-foreground">Manage and track all your shipment bookings</p>
@@ -456,7 +456,7 @@ export default function BookingsPage() {
             Export Excel ({filteredBookings.length})
           </Button>
           <Button asChild className="bg-primary hover:bg-primary/90">
-            <a href="/">
+            <a href="/booking">
               <Package className="h-4 w-4 mr-2" />
               New Booking
             </a>
