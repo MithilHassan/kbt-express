@@ -10,7 +10,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
     const { data: booking, error } = await supabase.from("bookings").select("*").eq("id", params.id).single()
 
     if (error) {
-      console.error("[v0] Database error:", error)
+      console.error(" Database error:", error)
       return NextResponse.json({ error: "Booking not found" }, { status: 404 })
     }
 
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       .order("created_at", { ascending: true })
 
     if (packagesError) {
-      console.error("[v0] Error fetching packages:", packagesError)
+      console.error(" Error fetching packages:", packagesError)
     }
 
     return NextResponse.json({
@@ -32,7 +32,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       },
     })
   } catch (error) {
-    console.error("[v0] API error:", error)
+    console.error(" API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
@@ -40,7 +40,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const formData = await request.json()
-    console.log("[v0] Updating booking:", params.id, formData)
+    console.log(" Updating booking:", params.id, formData)
 
     const supabase = await createClient()
     const adminSupabase = createAdminClient()
@@ -51,10 +51,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       .eq("id", params.id)
       .single()
 
-    console.log("[v0] Existing booking check:", existingBooking, "Fetch error:", fetchError)
+    console.log(" Existing booking check:", existingBooking, "Fetch error:", fetchError)
 
     if (fetchError || !existingBooking) {
-      console.error("[v0] Booking not found:", params.id)
+      console.error(" Booking not found:", params.id)
       return NextResponse.json({ error: `Booking with ID ${params.id} not found` }, { status: 404 })
     }
 
@@ -127,6 +127,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       shipper_country: formData.shipperCountry,
       shipper_phone: formData.shipperPhone,
       shipper_email: formData.shipperEmail,
+      // Add registration fields for shipper
+      shipper_registration_type:
+        formData.shipperRegistrationType && formData.shipperRegistrationType !== "None"
+          ? formData.shipperRegistrationType
+          : null,
+      shipper_registration_number: formData.shipperRegistrationNumber || null,
 
       // Consignee Information
       consignee_company_name: formData.consigneeCompanyName,
@@ -138,6 +144,12 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       consignee_country: formData.consigneeCountry,
       consignee_phone: formData.consigneePhone,
       consignee_email: formData.consigneeEmail,
+      // Add registration fields for consignee
+      consignee_registration_type:
+        formData.consigneeRegistrationType && formData.consigneeRegistrationType !== "None"
+          ? formData.consigneeRegistrationType
+          : null,
+      consignee_registration_number: formData.consigneeRegistrationNumber || null,
 
       // Shipment Information
       payment_mode: formData.paymentMode,
@@ -161,8 +173,8 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       updated_at: new Date().toISOString(),
     }
 
-    console.log("[v0] Update data being sent:", updateData)
-    console.log("[v0] Booking ID for update:", params.id)
+    console.log(" Update data being sent:", updateData)
+    console.log(" Booking ID for update:", params.id)
 
     const { data: updateResult, error: updateError } = await adminSupabase
       .from("bookings")
@@ -170,10 +182,10 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       .eq("id", params.id)
       .select()
 
-    console.log("[v0] Update result:", updateResult, "Update error:", updateError)
+    console.log(" Update result:", updateResult, "Update error:", updateError)
 
     if (updateError) {
-      console.error("[v0] Database error:", updateError)
+      console.error(" Database error:", updateError)
       return NextResponse.json({ error: `Database error: ${updateError.message}` }, { status: 500 })
     }
 
@@ -184,7 +196,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         .eq("id", params.id)
         .single()
 
-      console.log("[v0] Recheck booking after failed update:", recheckBooking, "Recheck error:", recheckError)
+      console.log(" Recheck booking after failed update:", recheckBooking, "Recheck error:", recheckError)
 
       return NextResponse.json(
         {
@@ -209,21 +221,21 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       })
 
       if (historyError) {
-        console.error("[v0] Error creating status history:", historyError)
+        console.error(" Error creating status history:", historyError)
         // Don't fail the request if history insert fails
       } else {
-        console.log("[v0] Status history created for status change:", existingBooking.status, "->", formData.status)
+        console.log(" Status history created for status change:", existingBooking.status, "->", formData.status)
       }
     }
 
     if (formData.packages && Array.isArray(formData.packages)) {
-      console.log("[v0] Processing packages update, count:", formData.packages.length)
-      console.log("[v0] Packages in request:", formData.packages)
+      console.log(" Processing packages update, count:", formData.packages.length)
+      console.log(" Packages in request:", formData.packages)
 
       const { error: deleteError } = await adminSupabase.from("packages").delete().eq("booking_id", params.id)
 
       if (deleteError) {
-        console.error("[v0] Error deleting existing packages:", deleteError)
+        console.error(" Error deleting existing packages:", deleteError)
         return NextResponse.json(
           { error: `Failed to delete existing packages: ${deleteError.message}` },
           { status: 500 },
@@ -244,23 +256,23 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
           gross_weight: Number.parseFloat(formData.grossWeight) || 0,
         }))
 
-        console.log("[v0] Inserting packages:", packagesData)
+        console.log(" Inserting packages:", packagesData)
 
         const { error: insertError } = await adminSupabase.from("packages").insert(packagesData)
 
         if (insertError) {
-          console.error("[v0] Error inserting packages:", insertError)
+          console.error(" Error inserting packages:", insertError)
           return NextResponse.json({ error: `Failed to update packages: ${insertError.message}` }, { status: 500 })
         }
 
-        console.log("[v0] Packages inserted successfully")
+        console.log(" Packages inserted successfully")
       }
     } else {
-      console.log("[v0] No packages provided in update request")
+      console.log(" No packages provided in update request")
     }
 
     const updatedBooking = updateResult[0]
-    console.log("[v0] Booking updated successfully:", updatedBooking)
+    console.log(" Booking updated successfully:", updatedBooking)
 
     return NextResponse.json({
       success: true,
@@ -268,7 +280,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
       message: "Booking updated successfully",
     })
   } catch (error) {
-    console.error("[v0] API error:", error)
+    console.error(" API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
@@ -280,7 +292,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { error } = await adminSupabase.from("bookings").delete().eq("id", params.id)
 
     if (error) {
-      console.error("[v0] Database error:", error)
+      console.error(" Database error:", error)
       return NextResponse.json({ error: "Failed to delete booking" }, { status: 500 })
     }
 
@@ -289,7 +301,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       message: "Booking deleted successfully",
     })
   } catch (error) {
-    console.error("[v0] API error:", error)
+    console.error(" API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
@@ -297,7 +309,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const formData = await request.json()
-    console.log("[v0] Updating booking status:", params.id, formData)
+    console.log(" Updating booking status:", params.id, formData)
 
     const supabase = await createClient()
     const adminSupabase = createAdminClient()
@@ -309,7 +321,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       .single()
 
     if (fetchError || !existingBooking) {
-      console.error("[v0] Booking not found:", params.id)
+      console.error(" Booking not found:", params.id)
       return NextResponse.json({ error: `Booking with ID ${params.id} not found` }, { status: 404 })
     }
 
@@ -332,7 +344,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       .select()
 
     if (updateError) {
-      console.error("[v0] Database error:", updateError)
+      console.error(" Database error:", updateError)
       return NextResponse.json({ error: `Database error: ${updateError.message}` }, { status: 500 })
     }
 
@@ -349,12 +361,12 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     })
 
     if (historyError) {
-      console.error("[v0] Error creating status history:", historyError)
+      console.error(" Error creating status history:", historyError)
       // Don't fail the request if history insert fails
     }
 
     const updatedBooking = updateResult[0]
-    console.log("[v0] Booking status updated successfully:", updatedBooking)
+    console.log(" Booking status updated successfully:", updatedBooking)
 
     return NextResponse.json({
       success: true,
@@ -362,7 +374,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
       message: "Booking status updated successfully",
     })
   } catch (error) {
-    console.error("[v0] API error:", error)
+    console.error(" API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

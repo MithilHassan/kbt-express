@@ -26,7 +26,7 @@ export async function GET() {
       .order("created_at", { ascending: false })
 
     if (error) {
-      console.error("[v0] Database error:", error)
+      console.error(" Database error:", error)
       return NextResponse.json({ error: "Failed to fetch bookings" }, { status: 500 })
     }
 
@@ -35,7 +35,7 @@ export async function GET() {
       bookings: bookings || [],
     })
   } catch (error) {
-    console.error("[v0] API error:", error)
+    console.error(" API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
@@ -43,7 +43,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.json()
-    console.log("[v0] Submitting form data:", formData)
+    console.log(" Submitting form data:", formData)
 
     const supabase = await createClient()
 
@@ -112,12 +112,12 @@ export async function POST(request: NextRequest) {
     const { data: bookingNumberResult, error: rpcError } = await adminSupabase.rpc("generate_booking_number")
 
     if (rpcError) {
-      console.error("[v0] RPC error generating booking number:", rpcError)
+      console.error(" RPC error generating booking number:", rpcError)
       return NextResponse.json({ error: "Failed to generate booking number" }, { status: 500 })
     }
 
     const bookingNumber = bookingNumberResult as string
-    console.log("[v0] Generated booking number:", bookingNumber)
+    console.log(" Generated booking number:", bookingNumber)
 
     const { data: booking, error } = await supabase
       .from("bookings")
@@ -180,7 +180,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     if (error) {
-      console.error("[v0] Database error details:", {
+      console.error(" Database error details:", {
         message: error.message,
         code: error.code,
         status: error.status,
@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to create booking" }, { status: 500 })
     }
 
-    console.log("[v0] Booking inserted successfully with ID:", booking.id)
+    console.log(" Booking inserted successfully with ID:", booking.id)
 
     const packageInserts = packages.map((pkg: any) => ({
       booking_id: booking.id,
@@ -207,8 +207,8 @@ export async function POST(request: NextRequest) {
     const { error: packagesError } = await supabase.from("packages").insert(packageInserts)
 
     if (packagesError) {
-      console.error("[v0] Packages insert error:", packagesError)
-      console.warn("[v0] Continuing without package details")
+      console.error(" Packages insert error:", packagesError)
+      console.warn(" Continuing without package details")
     }
 
     const { error: historyError } = await supabase.from("status_history").insert({
@@ -219,17 +219,17 @@ export async function POST(request: NextRequest) {
     })
 
     if (historyError) {
-      console.error("[v0] Status history insert error:", historyError)
+      console.error(" Status history insert error:", historyError)
     }
 
-    console.log("[v0] Booking created successfully:", booking)
+    console.log(" Booking created successfully:", booking)
     return NextResponse.json({
       success: true,
       booking: booking,
       message: "Booking created successfully",
     })
   } catch (error) {
-    console.error("[v0] API error:", error)
+    console.error(" API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }

@@ -8,6 +8,7 @@ import {
   Plane,
   Package,
   ShieldCheck,
+  Bike,
   PackageCheck,
   XCircle,
   type LucideIcon,
@@ -97,12 +98,20 @@ export const STATUS_OPTIONS: StatusConfig[] = [
     order: 9,
   },
   {
+    value: "Out for Delivery",
+    label: "Out for Delivery",
+    color: "bg-orange-100 text-orange-800 border-orange-200",
+    icon: Bike,
+    description: "Package is out for delivery",
+    order: 10,
+  },
+  {
     value: "Delivered",
     label: "Delivered",
     color: "bg-green-100 text-green-800 border-green-200",
     icon: PackageCheck,
     description: "Package successfully delivered",
-    order: 10,
+    order: 11,
   },
   {
     value: "Cancelled",
@@ -110,7 +119,7 @@ export const STATUS_OPTIONS: StatusConfig[] = [
     color: "bg-red-100 text-red-800 border-red-200",
     icon: XCircle,
     description: "Booking has been cancelled",
-    order: 11,
+    order: 12,
   },
 ]
 

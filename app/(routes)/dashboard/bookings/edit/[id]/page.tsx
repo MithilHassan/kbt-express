@@ -170,11 +170,11 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
         })
         setBookingNumber(booking.booking_number)
       } else {
-        console.error("[v0] Failed to fetch booking")
+        console.error(" Failed to fetch booking")
         router.push("/dashboard/bookings")
       }
     } catch (error) {
-      console.error("[v0] Error fetching booking:", error)
+      console.error(" Error fetching booking:", error)
       router.push("/dashboard/bookings")
     } finally {
       setIsLoading(false)
@@ -193,9 +193,9 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
     setIsSubmitting(true)
 
     try {
-      console.log("[v0] Submitting booking update")
-      console.log("[v0] Packages count:", formData.packages.length)
-      console.log("[v0] Packages data:", formData.packages)
+      console.log(" Submitting booking update")
+      console.log(" Packages count:", formData.packages.length)
+      console.log(" Packages data:", formData.packages)
 
       const response = await fetch(`/api/bookings/${params.id}`, {
         method: "PUT",
@@ -211,10 +211,10 @@ export default function EditBookingPage({ params }: { params: { id: string } }) 
         throw new Error(result.error || "Failed to update booking")
       }
 
-      console.log("[v0] Booking updated successfully:", result.booking)
+      console.log(" Booking updated successfully:", result.booking)
       router.push("/dashboard/bookings")
     } catch (error) {
-      console.error("[v0] Error updating booking:", error)
+      console.error(" Error updating booking:", error)
       alert(`Error updating booking: ${error instanceof Error ? error.message : "Unknown error"}`)
     } finally {
       setIsSubmitting(false)

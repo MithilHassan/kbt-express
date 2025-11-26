@@ -141,8 +141,8 @@ export default function BookingForm() {
     setIsSubmitting(true)
 
     try {
-      console.log("[v0] Submitting form data:", formData)
-      console.log("[v0] Submitting dimensions data:", dimensions)
+      console.log(" Submitting form data:", formData)
+      console.log(" Submitting dimensions data:", dimensions)
 
       const packages = dimensions.map((dim) => ({
         billingWeightKg: formData.billingWeightKg,
@@ -173,7 +173,7 @@ export default function BookingForm() {
         throw new Error(result.error || "Failed to submit booking")
       }
 
-      console.log("[v0] Booking created successfully:", result.booking)
+      console.log(" Booking created successfully:", result.booking)
 
       const pdfData: BookingData = {
         bookingNumber: result.booking.booking_number,
@@ -238,7 +238,7 @@ export default function BookingForm() {
       setBookingData(pdfData)
       setIsSuccess(true)
     } catch (error) {
-      console.error("[v0] Error submitting form:", error)
+      console.error(" Error submitting form:", error)
       alert(`Error submitting booking: ${error instanceof Error ? error.message : "Unknown error"}`)
     } finally {
       setIsSubmitting(false)
@@ -684,7 +684,7 @@ export default function BookingForm() {
                   </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="amount">Amount</Label>
+                  <Label htmlFor="amount">Amount (USD)</Label>
                   <Input
                     id="amount"
                     type="number"
@@ -716,7 +716,7 @@ export default function BookingForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="productValue">Product Value</Label>
+                  <Label htmlFor="productValue">Product Value (USD)</Label>
                   <Input
                     id="productValue"
                     type="number"

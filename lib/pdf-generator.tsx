@@ -148,9 +148,8 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             align-items: flex-end;
           }
           .tracking-number {
-            font-family: 'Courier New', monospace;
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 700;
             letter-spacing: 2px;
             transform: translateY(-10px);
           }
@@ -161,7 +160,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             border-bottom: none;
           }
           .section-header {
-            background: #0253A3;
+            background: #FF890495;
             color: #fff;
             font-weight: bold;
             padding-bottom: 3px;
@@ -173,7 +172,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             transform: translateY(-5px);
           }
           .col {
-            border: 3px solid #0253A3;
+            border: 3px solid #FF890495;
             padding: 1px;
             flex: 1;
           }
@@ -182,13 +181,13 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
           }
           .col-narrow {
             flex: 0.8;
-            border-left: 3px solid #0253A3;
-            border-right: 3px solid #0253A3;
+            border-left: 3px solid #FF890495;
+            border-right: 3px solid #FF890495;
 
           }
           .col-wide {
             flex: 1.5;
-            border-left: 3px solid #0253A3;
+            border-left: 3px solid #FF890495;
           }
           .field-label {
             color: #000;
@@ -204,7 +203,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
 
           }
           .field-group {
-            border: 2px solid #0253A3;
+            border: 2px solid #FF890495;
             padding: 3px;
           }
           .field-group:last-child {
@@ -222,27 +221,27 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             border-collapse: collapse;
           }
           .table th {
-            background: #0253A350;
+            background: #FF89049550;
             text-align: center;
             font-weight: bold;
-            border: 1px solid #0253A3;
+            border: 1px solid #FF890495;
             padding-bottom: 5px;
           }
           .table td {
             text-align: center;
-            border: 1px solid #0253A3;
+            border: 1px solid #FF890495;
             font-size: 10px;
             padding-bottom: 5px;
             font-weight: bold;
           }
           .signature-box {
             min-height: 60px;
-            border: 1px solid #0253A3;
+            border: 1px solid #FF890495;
             margin-top: 5px;
             background: #fafafa;
           }
           .footer {
-            background: #0253A3;
+            background: #FF890495;
             color: #fff;
             display: flex;
             justify-content: space-between;
@@ -279,7 +278,6 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             align-items: flex-end;
           }
           .ci-barcode-number {
-            font-family: 'Courier New', monospace;
             font-size: 20px;
             font-weight: bold;
             letter-spacing: 1px;
@@ -410,7 +408,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             <div class="barcode-section">
               <div class="barcode-container">
                 <svg id="barcode-${trackingNumber}" class="barcode-image"></svg>
-                <div class="tracking-number">${trackingNumber}</div>
+                <div class="tracking-number">AWB-${trackingNumber}</div>
               </div>
             </div>
           </div>
@@ -530,7 +528,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
              
             <div class="col-wide">
               <div style="display: flex;">
-                <div style="flex: 1; border-right: 5px solid #0253A3;">
+                <div style="flex: 1; border-right: 5px solid #FF890495;">
                   <div class="section-header" style="text-align: center;"> <p class="reset-margin">Origin</p></div>
                   <div style="padding: 3px;">
                     <div class="field-group">
@@ -583,7 +581,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
 
               <div class="section-header"><p class="reset-margin">Description of Goods</p></div>
               <div style="padding: 3px">
-              <div style="padding: 3px; min-height: 60px; border: 2px solid #0253A3;">
+              <div style="padding: 3px; min-height: 60px; border: 2px solid #FF890495;">
                 <div class="field-value">${bookingData.itemDescription}</div>
               </div>
               </div>
@@ -838,7 +836,7 @@ export function generateCommercialInvoiceHTML(bookingData: BookingData): string 
             <tbody>
               <tr>
                 <td style="width: 70%; height: 100px; vertical-align: top;">${bookingData.itemDescription}</td>
-                <td style="text-align: center; vertical-align: top;">${bookingData.pieces}</td>
+                <td style="text-align: center; vertical-align: top;"></td>
                 <td style="text-align: center; vertical-align: top;">${bookingData.productValue || "0.00"} USD</td>
               </tr>
             </tbody>
@@ -873,7 +871,7 @@ import { getBase64Logo } from "./getBase64Logo" // adjust the path accordingly
 
 export async function downloadBookingPDF(bookingData: BookingData) {
   try {
-    console.log("[v0] Starting PDF generation...")
+    console.log(" Starting PDF generation...")
 
     const jsPDF = (await import("jspdf")).default
     const html2canvas = (await import("html2canvas")).default
@@ -907,7 +905,7 @@ export async function downloadBookingPDF(bookingData: BookingData) {
       document.body.appendChild(el)
     }
 
-    console.log("[v0] Containers created")
+    console.log(" Containers created")
 
     // === 2️⃣ Generate barcodes BEFORE rendering ===
     const trackingNumber = bookingData.bookingNumber.replace(/[^A-Z0-9]/g, "").toUpperCase()
@@ -930,7 +928,7 @@ export async function downloadBookingPDF(bookingData: BookingData) {
     // ✅ Wait briefly to ensure barcode SVGs fully render
     await new Promise((res) => setTimeout(res, 300))
 
-    console.log("[v0] Barcodes rendered")
+    console.log(" Barcodes rendered")
 
     // === 3️⃣ Capture both sections ===
     const captureOptions = {
@@ -943,16 +941,16 @@ export async function downloadBookingPDF(bookingData: BookingData) {
     const mainCanvas = await html2canvas(container, captureOptions)
     const commercialCanvas = await html2canvas(commercialContainer, captureOptions)
 
-    console.log("[v0] Canvases captured")
+    console.log(" Canvases captured")
     // Debug: log canvas dimensions to help diagnose blank pages
     try {
-      console.log("[v0] mainCanvas size:", mainCanvas.width, "x", mainCanvas.height)
-      console.log("[v0] commercialCanvas size:", commercialCanvas.width, "x", commercialCanvas.height)
-      if (!mainCanvas.width || !mainCanvas.height) console.warn("[v0] mainCanvas appears empty")
+      console.log(" mainCanvas size:", mainCanvas.width, "x", mainCanvas.height)
+      console.log(" commercialCanvas size:", commercialCanvas.width, "x", commercialCanvas.height)
+      if (!mainCanvas.width || !mainCanvas.height) console.warn(" mainCanvas appears empty")
       if (!commercialCanvas.width || !commercialCanvas.height)
-        console.warn("[v0] commercialCanvas appears empty")
+        console.warn(" commercialCanvas appears empty")
     } catch (e) {
-      console.warn("[v0] Error logging canvas sizes:", e)
+      console.warn(" Error logging canvas sizes:", e)
     }
 
     // === 4️⃣ Generate PDF ===
@@ -976,13 +974,13 @@ export async function downloadBookingPDF(bookingData: BookingData) {
     // === 5️⃣ Download ===
     pdf.save(`booking-${bookingData.bookingNumber}.pdf`)
 
-    console.log("[v0] PDF saved")
+    console.log(" PDF saved")
 
     // Clean up
     document.body.removeChild(container)
     document.body.removeChild(commercialContainer)
   } catch (error) {
-    console.error("[v0] Error generating PDF:", error)
+    console.error(" Error generating PDF:", error)
     throw new Error(
       `Failed to generate PDF: ${error instanceof Error ? error.message : String(error)}`
     )

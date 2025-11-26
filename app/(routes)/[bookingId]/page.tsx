@@ -59,7 +59,7 @@ export default function TrackingPage() {
 
         setTrackingData(result.booking)
       } catch (err) {
-        console.error("[v0] Error tracking booking:", err)
+        console.error(" Error tracking booking:", err)
         setError(err instanceof Error ? err.message : "Failed to track booking")
       } finally {
         setIsLoading(false)

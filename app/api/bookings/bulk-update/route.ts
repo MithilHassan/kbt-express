@@ -32,7 +32,7 @@ export async function PATCH(request: NextRequest) {
       .select()
 
     if (error) {
-      console.error("[v0] Bulk update database error:", error)
+      console.error(" Bulk update database error:", error)
       return NextResponse.json({ error: `Database error: ${error.message}` }, { status: 500 })
     }
 
@@ -56,7 +56,7 @@ export async function PATCH(request: NextRequest) {
       const { error: historyError } = await supabase.from("status_history").insert(statusHistoryEntries)
 
       if (historyError) {
-        console.error("[v0] Failed to create status history entries:", historyError)
+        console.error(" Failed to create status history entries:", historyError)
       }
     }
 
@@ -67,7 +67,7 @@ export async function PATCH(request: NextRequest) {
       message: `Successfully updated ${data.length} booking(s) to ${status}`,
     })
   } catch (error) {
-    console.error("[v0] Bulk update API error:", error)
+    console.error(" Bulk update API error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
