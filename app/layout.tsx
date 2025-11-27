@@ -4,7 +4,6 @@ import './globals.css'
 import { Header } from '@/components/Header'
 import { Footer } from '@/components/Footer'
 
-
 export const metadata: Metadata = {
   title: 'KBT EXPRESS',
   description: 'Global Logistic Solution',
@@ -15,15 +14,16 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode
-}>) {
+}) {
   return (
     <html lang="en">
+      <head />
       <body>
-          <Header />
-          {children}
-          <Footer />
+        <Header />
+        {children}
+        <Footer />
         <Analytics />
       </body>
     </html>

@@ -149,7 +149,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
           }
           .tracking-number {
             font-size: 20px;
-            font-weight: 700;
+            font-weight: 900;
             letter-spacing: 2px;
             transform: translateY(-10px);
           }
@@ -279,7 +279,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
           }
           .ci-barcode-number {
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 900;
             letter-spacing: 1px;
             transform: translateY(-10px);
           }
