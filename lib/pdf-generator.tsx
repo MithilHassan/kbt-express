@@ -117,6 +117,9 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
     <!DOCTYPE html>
     <html>
       <head>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Poller+One&display=swap" rel="stylesheet">
         <meta charset="UTF-8">
         <style>
           /* --- Reset but preserve structure --- */
@@ -148,8 +151,10 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             align-items: flex-end;
           }
           .tracking-number {
+            font-family: "Poller One", sans-serif;
+            font-weight: 400;
+            font-style: normal;
             font-size: 20px;
-            font-weight: 900;
             letter-spacing: 2px;
             transform: translateY(-10px);
           }
@@ -160,7 +165,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             border-bottom: none;
           }
           .section-header {
-            background: #FF890495;
+            background: #FF8904;
             color: #fff;
             font-weight: bold;
             padding-bottom: 3px;
@@ -172,7 +177,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             transform: translateY(-5px);
           }
           .col {
-            border: 3px solid #FF890495;
+            border: 3px solid #FF8904;
             padding: 1px;
             flex: 1;
           }
@@ -181,13 +186,13 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
           }
           .col-narrow {
             flex: 0.8;
-            border-left: 3px solid #FF890495;
-            border-right: 3px solid #FF890495;
+            border-left: 3px solid #FF8904;
+            border-right: 3px solid #FF8904;
 
           }
           .col-wide {
             flex: 1.5;
-            border-left: 3px solid #FF890495;
+            border-left: 3px solid #FF8904;
           }
           .field-label {
             color: #000;
@@ -203,7 +208,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
 
           }
           .field-group {
-            border: 2px solid #FF890495;
+            border: 2px solid #FF8904;
             padding: 3px;
           }
           .field-group:last-child {
@@ -221,27 +226,27 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             border-collapse: collapse;
           }
           .table th {
-            background: #FF89049550;
+            background: #FF890450;
             text-align: center;
             font-weight: bold;
-            border: 1px solid #FF890495;
+            border: 1px solid #FF8904;
             padding-bottom: 5px;
           }
           .table td {
             text-align: center;
-            border: 1px solid #FF890495;
+            border: 1px solid #FF8904;
             font-size: 10px;
             padding-bottom: 5px;
             font-weight: bold;
           }
           .signature-box {
             min-height: 60px;
-            border: 1px solid #FF890495;
+            border: 1px solid #FF8904;
             margin-top: 5px;
             background: #fafafa;
           }
           .footer {
-            background: #FF890495;
+            background: #FF8904;
             color: #fff;
             display: flex;
             justify-content: space-between;
@@ -278,8 +283,10 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
             align-items: flex-end;
           }
           .ci-barcode-number {
+            font-family: "Poller One", sans-serif;
+            font-weight: 400;
+            font-style: normal;
             font-size: 20px;
-            font-weight: 900;
             letter-spacing: 1px;
             transform: translateY(-10px);
           }
@@ -436,17 +443,14 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
                     <div class="field-value ">${bookingData.shipperPhone}</div>
                   </div>
                 </div>
-                <div class="inline-fields">
-                  <div class="field-group" style="border-right: 0">
-                    <div class="field-label ">Contact Person</div>
-                    <div class="field-value ">${bookingData.shipperContactPerson}</div>
-                  </div>
-                  <div class="field-group">
-                    <div class="field-label ">Email Id</div>
-                    <div class="field-value ">${bookingData.shipperEmail}</div>
-                  </div>
+                <div class="field-group" style="border-bottom: 0">
+                  <div class="field-label ">Contact Person</div>
+                  <div class="field-value ">${bookingData.shipperContactPerson}</div>
                 </div>
-
+                <div class="field-group">
+                  <div class="field-label ">Email Id</div>
+                  <div class="field-value ">${bookingData.shipperEmail}</div>
+                </div>
                 ${
                   bookingData.shipperRegistrationType
                     ? `
@@ -480,15 +484,13 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
                     <div class="field-value">${bookingData.consigneePhone}</div>
                   </div>
                 </div>
-                <div class="inline-fields">
-                  <div class="field-group" style="border-right: 0;">
-                    <div class="field-label">Contact Person</div>
-                    <div class="field-value">${bookingData.consigneeContactPerson}</div>
-                  </div>
-                  <div class="field-group">
-                    <div class="field-label">Email Id</div>
-                    <div class="field-value">${bookingData.consigneeEmail}</div>
-                  </div>
+                <div class="field-group" style="border-right: 0;">
+                  <div class="field-label">Contact Person</div>
+                  <div class="field-value">${bookingData.consigneeContactPerson}</div>
+                </div>
+                <div class="field-group">
+                  <div class="field-label">Email Id</div>
+                  <div class="field-value">${bookingData.consigneeEmail}</div>
                 </div>
                 ${
                   bookingData.consigneeRegistrationType
@@ -528,7 +530,7 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
              
             <div class="col-wide">
               <div style="display: flex;">
-                <div style="flex: 1; border-right: 5px solid #FF890495;">
+                <div style="flex: 1; border-right: 5px solid #FF8904;">
                   <div class="section-header" style="text-align: center;"> <p class="reset-margin">Origin</p></div>
                   <div style="padding: 3px;">
                     <div class="field-group">
@@ -565,23 +567,13 @@ export function generateBookingHTML(bookingData: BookingData, logoBase64: string
                   <div class="field-label">Value for Customs (USD) :</div>
                   <div class="field-value" style="margin-left: 5px;">${bookingData.productValue || "N/A"}</div>
                 </div>
-                <div class="inline-fields">
-                  <div class="field-group" style="border-right: 0;">
-                    <div class="field-label">Freight Bill To</div>
-                    <div class="field-value">${bookingData.paymentMode === "prepaid" ? "SHIPPER" : "CONSIGNEE"}</div>
-                  </div>
-                  <div class="field-group">
-                    <div class="field-label">Duties & Taxes Bill To</div>
-                    <div class="field-value">CONSIGNEE</div>
-                  </div>
-                </div>
               </div>
 
               <!-- Description of Goods   --> 
 
               <div class="section-header"><p class="reset-margin">Description of Goods</p></div>
               <div style="padding: 3px">
-              <div style="padding: 3px; min-height: 60px; border: 2px solid #FF890495;">
+              <div style="padding: 3px; min-height: 60px; border: 2px solid #FF8904;">
                 <div class="field-value">${bookingData.itemDescription}</div>
               </div>
               </div>
