@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { STATUS_OPTIONS } from "@/lib/status-config"
@@ -31,6 +32,8 @@ export function StatusUpdateDialog({ bookingId, currentStatus, onStatusUpdated, 
   const [open, setOpen] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState(currentStatus)
   const [notes, setNotes] = useState("")
+  const [useCustomTime, setUseCustomTime] = useState(false)
+  const [customDateTime, setCustomDateTime] = useState(new Date().toISOString().slice(0, 16))
   const [isUpdating, setIsUpdating] = useState(false)
 
   const selectedConfig = getStatusConfig(selectedStatus)
@@ -40,22 +43,30 @@ export function StatusUpdateDialog({ bookingId, currentStatus, onStatusUpdated, 
 
     setIsUpdating(true)
     try {
+      const payload: { status: string; notes: string | null; createdBy: string; timestamp?: string } = {
+        status: selectedStatus,
+        notes: notes || null,
+        createdBy: "Admin",
+      }
+
+      if (useCustomTime && customDateTime) {
+        payload.timestamp = new Date(customDateTime).toISOString()
+      }
+
       const response = await fetch(`/api/bookings/${bookingId}/status`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          status: selectedStatus,
-          notes: notes || null,
-          createdBy: "Admin",
-        }),
+        body: JSON.stringify(payload),
       })
 
       if (response.ok) {
         onStatusUpdated()
         setOpen(false)
         setNotes("")
+        setUseCustomTime(false)
+        setCustomDateTime(new Date().toISOString().slice(0, 16))
       } else {
         const error = await response.json()
         alert(`Failed to update status: ${error.error}`)
@@ -106,6 +117,7 @@ export function StatusUpdateDialog({ bookingId, currentStatus, onStatusUpdated, 
                         </div>
                         <div className="flex flex-col gap-0.5">
                           <span className="font-medium text-sm">{option.label}</span>
+                          <span className="text-xs text-muted-foreground">{option.description}</span>
                         </div>
                       </div>
                     </SelectItem>
@@ -124,6 +136,29 @@ export function StatusUpdateDialog({ bookingId, currentStatus, onStatusUpdated, 
               placeholder="Add any additional notes about this status update..."
               rows={3}
             />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="useCustomTime"
+                checked={useCustomTime}
+                onChange={(e) => setUseCustomTime(e.target.checked)}
+                className="h-4 w-4 rounded border border-input"
+              />
+              <Label htmlFor="useCustomTime" className="font-normal cursor-pointer">
+                Set custom date and time
+              </Label>
+            </div>
+            {useCustomTime && (
+              <Input
+                type="datetime-local"
+                value={customDateTime}
+                onChange={(e) => setCustomDateTime(e.target.value)}
+                className="h-10"
+              />
+            )}
           </div>
         </div>
 

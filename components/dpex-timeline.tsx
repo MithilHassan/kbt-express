@@ -34,8 +34,8 @@ interface DPEXTimelineProps {
 export function DPEXTimeline({ bookingData, getCountryName, onNewSearch }: DPEXTimelineProps) {
   const [history, setHistory] = useState<StatusHistoryEntry[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const origin = ["Documentation Prepared", "Shipment Finalised", "Pickup Arranged", "Arrived Hub (Origin)"]
-  const destination = ["Sorted to Destination", "In Transit to Destination","Arrived Depot (Destination)","Released from Customs", "Delivered",]
+  const origin = ["Documentation Prepared", "Shipment Finalised", "Pickup Arranged", "Arrived Hub (Origin)", "Sorted to Destination", "In Transit to Destination",]
+  const destination = ["Arrived Depot (Destination)","Released from Customs", "Out for Delivery", "Delivered",]
   useEffect(() => {
     fetchStatusHistory()
   }, [bookingData.id])

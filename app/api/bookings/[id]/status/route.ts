@@ -4,7 +4,7 @@ import { createClient, createAdminClient } from "@/lib/supabase/server"
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
-    const { status, notes, createdBy } = await request.json()
+    const { status, notes, createdBy, timestamp } = await request.json()
 
     if (!status) {
       return NextResponse.json({ error: "Status is required" }, { status: 400 })
@@ -12,12 +12,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
     const supabase = await createAdminClient()
 
+    const statusTimestamp = timestamp ? new Date(timestamp).toISOString() : new Date().toISOString()
+
     // Update the booking status
     const { data: updatedBooking, error: updateError } = await supabase
       .from("bookings")
       .update({
         status,
-        updated_at: new Date().toISOString(),
+        updated_at: statusTimestamp,
       })
       .eq("id", id)
       .select("id, booking_number, status")
@@ -32,7 +34,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const historyData = {
       booking_id: id,
       status,
-      timestamp: new Date().toISOString(),
+      timestamp: statusTimestamp,
       notes: notes || null,
       created_by: createdBy || null,
     }
