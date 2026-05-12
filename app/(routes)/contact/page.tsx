@@ -51,8 +51,7 @@ const Contact = () => {
               <p className="flex items-start gap-3">
                 <FaLocationDot className="mt-1" /> 
                 <span>
-                  House # 04, Floor # 7, Road # 11, Sector #01, Uttara,
-                  Dhaka-1230, Bangladesh
+                  House-18, Road-7, Sector-01, Uttara, Dhaka-1230
                 </span>
               </p>
             </div>
